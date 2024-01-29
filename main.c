@@ -1,8 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void helloWorld();
-
 typedef struct _USERDATA {
 	char name[20];
 	int age;
@@ -32,7 +30,6 @@ int main()
 		pUser = pUser->pNext;
 	}	
 	
-	helloWorld();
 
 	return 0;
 }
