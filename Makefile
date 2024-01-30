@@ -1,13 +1,8 @@
 CC = gcc
-MY_TARGET = myResult
-MY_SRC = myMain.c
-OFFICIAL_TARGET = officialResult
-OFFICIAL_SRC = officialMain.c
+EVENT = events/*.c
+TARGET = result
+SRC = main.c
 
-mine:	
-	$(CC) -o $(MY_TARGET) $(MY_SRC) -g
-	./$(MY_TARGET)
-
-official:
-	$(CC) -o $(OFFICIAL_TARGET) $(OFFICIAL_SRC) -g
-	./$(OFFICIAL_TARGET)
+all:	
+	$(CC) -o $(TARGET) $(SRC) $(EVENT) -g
+	./$(TARGET)
