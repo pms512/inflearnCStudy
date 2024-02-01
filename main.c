@@ -1,47 +1,76 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
-typedef enum command { ADD, UPDATE, SELECT, DELETE, EXIT } command;
+typedef struct USERDATA {
+	char name[20];
+	int age;
+	char phone[15];
+	struct USERDATA *pNext;
+} USERDATA;
 
-void addEvent(void);
-void updateEvent(void);
-void selectEvent(void);
-void deleteEvent(void);
-void exitEvent(void);
+//declare global pointer variable : pHead
+USERDATA *pHead = NULL;
+
+void printAllNodes();
+void addNewNode();
+void freeAllNodes();
 
 int main()
 {
-	command inputCommand = 0;
+	printAllNodes();
+	
+	addNewNode("aaaa", 10, "010-1234-1234");
+	addNewNode("bbbb", 30, "010-4567-1237");
+	addNewNode("cccc", 50, "010-1235-5166");
+	
+	printAllNodes();
 
-	while( inputCommand != EXIT )
-	{
-		printf("[[INPUT COMMAND]]\n");
-		printf("[0] add\t[1] update\t[2] select\t[3] delete\t[4] exit\n");
-		scanf("%d", &inputCommand);
+	freeAllNodes();
 
-		switch(inputCommand)
-		{
-			case ADD :
-				addEvent();
-				break;
-			case UPDATE :
-				updateEvent();
-				break;
-			case SELECT :
-				selectEvent();
-				break;
-			case DELETE :
-				deleteEvent();
-				break;
-			case EXIT:
-				exitEvent();
-				break;
-			default:
-				printf("Invalid input. Please input proper value.\n\n");
-				break;
-		}
+	printAllNodes();
 
-	}
 	return 0;
+}
+
+void printAllNodes()
+{
+	USERDATA *pCurrent = NULL;
+	pCurrent = pHead;
+
+	while(pCurrent != NULL)
+	{
+	printf("[%p] %s, %d, %s [%p]\n", pCurrent, pCurrent->name, pCurrent->age, pCurrent->phone, pCurrent->pNext);
+	pCurrent = pCurrent->pNext;
+	}
+}
+
+void addNewNode(const char *newName, int newAge, const char *newPhone)
+{
+	USERDATA *newNode = malloc(sizeof(USERDATA));
+	memset(newNode, 0, sizeof(USERDATA));
+
+	strcpy(newNode->name, newName);
+	newNode->age = newAge;
+	strcpy(newNode->phone, newPhone);
+	newNode->pNext = pHead;
+	pHead = newNode;
+
+}
+
+void freeAllNodes()
+{
+	USERDATA *targetNode = NULL;
+
+	while(pHead != NULL)
+	{
+		targetNode = pHead;
+		pHead = targetNode->pNext;
+		printf("Deleting %p...\n", targetNode);
+		free(targetNode);
+
+		printf("====[Remained data]====\n");
+		printAllNodes();
+	}
 
 }
