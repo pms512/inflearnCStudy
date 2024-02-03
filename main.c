@@ -9,8 +9,8 @@ typedef struct USERDATA {
 	struct USERDATA *pNext;
 } USERDATA;
 
-//declare global pointer variable : pHead
-USERDATA *pHead = NULL;
+//declare global pointer variable : g_pHead
+USERDATA *g_pHead = NULL;
 
 void printAllNodes();
 void addNewNode();
@@ -28,33 +28,60 @@ int main()
 
 	freeAllNodes();
 
-	printAllNodes();
-
+	
 	return 0;
 }
 
 void printAllNodes()
 {
 	USERDATA *pCurrent = NULL;
-	pCurrent = pHead;
-
+	pCurrent = g_pHead;
+	printf("====[Remaining data]====\n");
 	while(pCurrent != NULL)
 	{
 	printf("[%p] %s, %d, %s [%p]\n", pCurrent, pCurrent->name, pCurrent->age, pCurrent->phone, pCurrent->pNext);
 	pCurrent = pCurrent->pNext;
 	}
+	printf("\n");
 }
 
 void addNewNode(const char *newName, int newAge, const char *newPhone)
 {
-	USERDATA *newNode = malloc(sizeof(USERDATA));
+/*	
+ 	//Add a node ahead of head node (STACK)
+ 	
+ 	USERDATA *newNode = malloc(sizeof(USERDATA));
 	memset(newNode, 0, sizeof(USERDATA));
-
 	strcpy(newNode->name, newName);
 	newNode->age = newAge;
 	strcpy(newNode->phone, newPhone);
-	newNode->pNext = pHead;
-	pHead = newNode;
+	newNode->pNext = g_pHead;
+	g_pHead = newNode;
+	printf("Added data : [%p] %s, %d, %s [%p]\n", newNode, newNode->name, newNode->age, newNode->phone, newNode->pNext);
+*/
+
+	//Add a node behind of tail node (QUEUE)
+	
+	USERDATA *newNode = malloc(sizeof(USERDATA));
+	memset(newNode, 0, sizeof(USERDATA));
+	strcpy(newNode->name, newName);
+	newNode->age = newAge;
+	strcpy(newNode->phone, newPhone);
+
+	if ( g_pHead == NULL )
+	{
+		g_pHead = newNode;
+	}
+	else
+	{
+		USERDATA *pTail = g_pHead;
+		while( pTail->pNext != NULL )
+		{
+			pTail = pTail->pNext;
+		}
+		pTail->pNext = newNode;
+	}
+	printf("Added data : [%p] %s, %d, %s [%p]\n", newNode, newNode->name, newNode->age, newNode->phone, newNode->pNext);
 
 }
 
@@ -62,14 +89,12 @@ void freeAllNodes()
 {
 	USERDATA *targetNode = NULL;
 
-	while(pHead != NULL)
+	while(g_pHead != NULL)
 	{
-		targetNode = pHead;
-		pHead = targetNode->pNext;
+		targetNode = g_pHead;
+		g_pHead = targetNode->pNext;
 		printf("Deleting %p...\n", targetNode);
 		free(targetNode);
-
-		printf("====[Remained data]====\n");
 		printAllNodes();
 	}
 
