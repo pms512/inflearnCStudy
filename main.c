@@ -12,6 +12,8 @@ typedef struct USERDATA {
 //declare global pointer variable : g_pHead
 USERDATA *g_pHead = NULL;
 
+void removeNode(const char *searchName);
+USERDATA *searchPrevNodeByName(const char *searchName);
 USERDATA *searchByName(const char *searchName);
 void addInitData();
 void printAllNodes();
@@ -20,24 +22,82 @@ void freeAllNodes();
 
 int main()
 {
-
-	searchByName("asdfkj");
-
-	addInitData();
-	
-	searchByName("aaaa");
-	searchByName("bbbb");
-	searchByName("cccc");
-	searchByName("dddd");
-	searchByName("eeee");
-	searchByName("ffff");
-	searchByName("gggg");
-	searchByName("asdf");
-
+	printf("=====================================================================================\n");
+	printf("[[TEST 1 : Remove head node]]\n");
+	addNewNode("aaaa", 10, "010-1111-1111");
+	printAllNodes();
+	removeNode("aaaa");
+	addNewNode("Newaaaa", 10, "010-1111-1111");
+	printAllNodes();
 	freeAllNodes();
+	printf("=====================================================================================\n");
 
-	
+	printf("[[TEST 2 : Remove body node]]\n");
+	addInitData();
+	printAllNodes();
+	removeNode("bbbb");
+	addNewNode("Newbbbb", 20, "010-2222-2222");
+	printAllNodes();
+	freeAllNodes();
+	printf("=====================================================================================\n");
+
+	printf("[[TEST 3 : Remove tail node]]\n");
+	addInitData();
+	printAllNodes();
+	removeNode("cccc");
+	addNewNode("Newcccc", 30, "010-3333-3333");
+	printAllNodes();
+	freeAllNodes();
+	printf("=====================================================================================\n");
+
 	return 0;
+}
+
+void removeNode(const char *searchName)
+{
+	USERDATA *targetNode = searchByName(searchName);
+	USERDATA *prevNode = searchPrevNodeByName(searchName);
+	if ( prevNode == NULL && targetNode == NULL )
+	{
+		printf("There is no data to remove. - name : %s\n", searchName);
+	}
+	else if ( prevNode == NULL )
+	{
+		printf("Removing data - name : %s\n", targetNode->name);
+		g_pHead = targetNode->pNext;
+		free(targetNode);
+	}
+	else
+	{
+		printf("Removing data - name : %s\n", targetNode->name);
+		prevNode->pNext = targetNode->pNext;
+		free(targetNode);
+	}
+}
+
+USERDATA *searchPrevNodeByName(const char *searchName)
+{
+	USERDATA *pCurrent = NULL;
+	pCurrent = g_pHead;
+	
+	while ( pCurrent != NULL )
+	{
+		if ( pCurrent->pNext == NULL)
+		{
+			return NULL;
+		}
+		else
+		{
+			if ( strcmp(pCurrent->pNext->name, searchName) == 0 )
+			{
+				return pCurrent;
+			}
+			else
+			{
+				pCurrent = pCurrent->pNext;
+			}
+		}
+	}
 }
 
 USERDATA *searchByName(const char *searchName)
@@ -49,14 +109,14 @@ USERDATA *searchByName(const char *searchName)
 	{
 		if ( strcmp(pCurrent->name, searchName) == 0 )
 		{
-			printf("Found data - name : %s [%p]\n", searchName, pCurrent);
+		//	printf("Found data - name : %s [%p]\n", searchName, pCurrent);
 			return pCurrent;
 		}
 		else
 		{
 			if ( pCurrent->pNext == NULL)
 			{
-				printf("Not found data - name : %s\n", searchName);
+		//		printf("Not found data - name : %s\n", searchName);
 				return NULL;
 			}
 			else
@@ -76,10 +136,6 @@ void addInitData()
 	addNewNode("aaaa", 10, "010-1111-1111");
 	addNewNode("bbbb", 20, "010-2222-2222");
 	addNewNode("cccc", 30, "010-3333-3333");
-	addNewNode("dddd", 40, "010-4444-4444");
-	addNewNode("eeee", 50, "010-5555-5555");
-	addNewNode("ffff", 60, "010-6666-6666");
-	addNewNode("gggg", 70, "010-7777-7777");
 }
 
 void printAllNodes()
@@ -138,12 +194,12 @@ void addNewNode(const char *newName, int newAge, const char *newPhone)
 void freeAllNodes()
 {
 	USERDATA *targetNode = NULL;
-
+	printf("=== Removing all nodes..===\n");
 	while(g_pHead != NULL)
 	{
 		targetNode = g_pHead;
 		g_pHead = targetNode->pNext;
-		printf("Deleting %p...\n", targetNode);
+		printf("Removing %p...\n", targetNode);
 		free(targetNode);
 		//printAllNodes();
 	}
