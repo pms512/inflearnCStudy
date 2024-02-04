@@ -12,24 +12,74 @@ typedef struct USERDATA {
 //declare global pointer variable : g_pHead
 USERDATA *g_pHead = NULL;
 
+USERDATA *searchByName(const char *searchName);
+void addInitData();
 void printAllNodes();
 void addNewNode();
 void freeAllNodes();
 
 int main()
 {
-	printAllNodes();
+
+	searchByName("asdfkj");
+
+	addInitData();
 	
-	addNewNode("aaaa", 10, "010-1234-1234");
-	addNewNode("bbbb", 30, "010-4567-1237");
-	addNewNode("cccc", 50, "010-1235-5166");
-	
-	printAllNodes();
+	searchByName("aaaa");
+	searchByName("bbbb");
+	searchByName("cccc");
+	searchByName("dddd");
+	searchByName("eeee");
+	searchByName("ffff");
+	searchByName("gggg");
+	searchByName("asdf");
 
 	freeAllNodes();
 
 	
 	return 0;
+}
+
+USERDATA *searchByName(const char *searchName)
+{
+	USERDATA *pCurrent = NULL;
+	pCurrent = g_pHead;
+
+	while ( pCurrent != NULL )
+	{
+		if ( strcmp(pCurrent->name, searchName) == 0 )
+		{
+			printf("Found data - name : %s [%p]\n", searchName, pCurrent);
+			return pCurrent;
+		}
+		else
+		{
+			if ( pCurrent->pNext == NULL)
+			{
+				printf("Not found data - name : %s\n", searchName);
+				return NULL;
+			}
+			else
+			{
+				pCurrent = pCurrent->pNext;
+			}
+		}
+	}
+
+	//If there is no data ( g_pHead == NULL )
+	printf("There is no data.\n");
+	return NULL;
+}
+
+void addInitData()
+{
+	addNewNode("aaaa", 10, "010-1111-1111");
+	addNewNode("bbbb", 20, "010-2222-2222");
+	addNewNode("cccc", 30, "010-3333-3333");
+	addNewNode("dddd", 40, "010-4444-4444");
+	addNewNode("eeee", 50, "010-5555-5555");
+	addNewNode("ffff", 60, "010-6666-6666");
+	addNewNode("gggg", 70, "010-7777-7777");
 }
 
 void printAllNodes()
@@ -81,7 +131,7 @@ void addNewNode(const char *newName, int newAge, const char *newPhone)
 		}
 		pTail->pNext = newNode;
 	}
-	printf("Added data : [%p] %s, %d, %s [%p]\n", newNode, newNode->name, newNode->age, newNode->phone, newNode->pNext);
+	printf("Added data : [%p] %s, %d, %s\n", newNode, newNode->name, newNode->age, newNode->phone);
 
 }
 
@@ -95,7 +145,7 @@ void freeAllNodes()
 		g_pHead = targetNode->pNext;
 		printf("Deleting %p...\n", targetNode);
 		free(targetNode);
-		printAllNodes();
+		//printAllNodes();
 	}
 
 }
