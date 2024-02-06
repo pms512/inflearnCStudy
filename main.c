@@ -6,11 +6,13 @@ typedef struct USERDATA {
 	char name[20];
 	int age;
 	char phone[15];
+	struct USERDATA *pPrev;
 	struct USERDATA *pNext;
 } USERDATA;
 
-//declare global pointer variable : g_pHead
-USERDATA g_Head = {"_dummy_", 0 };
+//declare global pointer variable : g_Head, g_Tail
+USERDATA g_Head = {"_dummyHead_", 0 };
+USERDATA g_Tail = {"_dummyTail_", 0 };
 
 void removeNode(const char *searchName);
 USERDATA *searchPrevNodeByName(const char *searchName);
@@ -22,12 +24,16 @@ void freeAllNodes();
 
 int main()
 {
+	g_Head.pNext = &g_Tail;
+	g_Tail.pPrev = &g_Head;
 	printf("=====================================================================================\n");
 	printf("[[TEST 1 : Remove head node]]\n");
 	addNewNode("aaaa", 10, "010-1111-1111");
 	printAllNodes();
 	removeNode("aaaa");
 	addNewNode("Newaaaa", 10, "010-1111-1111");
+	
+	searchByName("Newaaaabb");
 	printAllNodes();
 	freeAllNodes();
 	printf("=====================================================================================\n");
@@ -56,7 +62,6 @@ int main()
 void removeNode(const char *searchName)
 {
 	USERDATA *targetNode = searchByName(searchName);
-	USERDATA *prevNode = searchPrevNodeByName(searchName);
 	if ( targetNode == NULL )
 	{
 		printf("There is no data to remove. - name : %s\n", searchName);
@@ -64,33 +69,9 @@ void removeNode(const char *searchName)
 	else
 	{
 		printf("Removing data - name : %s\n", targetNode->name);
-		prevNode->pNext = targetNode->pNext;
+		targetNode->pPrev->pNext = targetNode->pNext;
+		targetNode->pNext->pPrev = targetNode->pPrev;
 		free(targetNode);
-	}
-}
-
-USERDATA *searchPrevNodeByName(const char *searchName)
-{
-	USERDATA *pCurrent = NULL;
-	pCurrent = &g_Head;
-	
-	while ( pCurrent != NULL )
-	{
-		if ( pCurrent->pNext == NULL)
-		{
-			return NULL;
-		}
-		else
-		{
-			if ( strcmp(pCurrent->pNext->name, searchName) == 0 )
-			{
-				return pCurrent;
-			}
-			else
-			{
-				pCurrent = pCurrent->pNext;
-			}
-		}
 	}
 }
 
@@ -98,29 +79,20 @@ USERDATA *searchByName(const char *searchName)
 {
 	USERDATA *pCurrent = g_Head.pNext;
 
-	while ( pCurrent != NULL )
+	while ( pCurrent != &g_Tail )
 	{
 		if ( strcmp(pCurrent->name, searchName) == 0 )
 		{
-		//	printf("Found data - name : %s [%p]\n", searchName, pCurrent);
+			printf("Found data - name : %s [%p]\n", searchName, pCurrent);
 			return pCurrent;
 		}
 		else
 		{
-			if ( pCurrent->pNext == NULL)
-			{
-		//		printf("Not found data - name : %s\n", searchName);
-				return NULL;
-			}
-			else
-			{
-				pCurrent = pCurrent->pNext;
-			}
+			pCurrent = pCurrent->pNext;
 		}
 	}
 
-	//If there is no data ( g_pHead == NULL )
-	printf("There is no data.\n");
+	printf("Not found data - name : %s\n", searchName);
 	return NULL;
 }
 
@@ -145,7 +117,6 @@ void printAllNodes()
 
 void addNewNode(const char *newName, int newAge, const char *newPhone)
 {
-	//Add a node behind of tail node (QUEUE)
 	
 	USERDATA *newNode = malloc(sizeof(USERDATA));
 	memset(newNode, 0, sizeof(USERDATA));
@@ -153,12 +124,12 @@ void addNewNode(const char *newName, int newAge, const char *newPhone)
 	newNode->age = newAge;
 	strcpy(newNode->phone, newPhone);
 
-	USERDATA *pTail = &g_Head;
-	while( pTail->pNext != NULL )
-	{
-		pTail = pTail->pNext;
-	}
-	pTail->pNext = newNode;
+	g_Tail.pPrev->pNext = newNode;
+	newNode->pPrev = g_Tail.pPrev;
+
+	g_Tail.pPrev = newNode;
+	newNode->pNext = &g_Tail;
+	
 	printf("Added data : [%p] %s, %d, %s\n", newNode, newNode->name, newNode->age, newNode->phone);
 
 }
@@ -167,10 +138,11 @@ void freeAllNodes()
 {
 	USERDATA *targetNode = NULL;
 	printf("=== Removing all nodes..===\n");
-	while(g_Head.pNext != NULL)
+	while(g_Head.pNext != &g_Tail)
 	{
 		targetNode = g_Head.pNext;
 		g_Head.pNext = targetNode->pNext;
+		g_Head.pNext->pPrev = &g_Head;
 		printf("Removing %p...\n", targetNode);
 		free(targetNode);
 		//printAllNodes();
