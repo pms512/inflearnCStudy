@@ -20,18 +20,16 @@ int main()
 	test_dequeue();
 	printf("===================================[END OF TEST]=====================================\n");
 	*/
-
+	addInitData();
 	//testLoop();
-	//eventLoop();
+	eventLoop();
 
 
-	test_sort1();
+	//test_sort1();
+	//test_sort2();
+	//test_sort3();
+	//test_sort4();
 
-	test_sort2();
-
-	test_sort3();
-
-	test_sort4();
 
 	removeAllNodes();
 

@@ -63,7 +63,6 @@ void removeAllNodes()
                 targetNode = g_Head.pNext;
                 g_Head.pNext = targetNode->pNext;
                 g_Head.pNext->pPrev = &g_Head;
-                printf("Removing %p...\n", targetNode);
                 free(targetNode);
         }
 
@@ -152,6 +151,30 @@ void removeNode(const char *searchName)
         }
 }
 
+void changePosition(USERDATA *node1, USERDATA *node2)
+{
+	USERDATA *pTmp;
+
+	if ( node1 != node2 )
+	{
+		pTmp = node1->pPrev;
+		node1->pPrev = node2->pPrev;
+		node2->pPrev = pTmp;
+
+		pTmp = node1->pPrev->pNext;
+		node1->pPrev->pNext = node2->pPrev->pNext;
+		node2->pPrev->pNext = pTmp;
+
+		pTmp = node1->pNext;
+		node1->pNext = node2->pNext;
+		node2->pNext = pTmp;
+
+		pTmp = node1->pNext->pPrev;
+		node1->pNext->pPrev = node2->pNext->pPrev;
+		node2->pNext->pPrev = pTmp;
+	}
+}
+
 void sortByName()
 {
 	USERDATA *sortPos = g_Head.pNext;
@@ -175,26 +198,91 @@ void sortByName()
 	}
 }
 
-void changePosition(USERDATA *node1, USERDATA *node2)
+void sortByAge()
 {
-	USERDATA *pTmp;
+        USERDATA *sortPos = g_Head.pNext;
+        USERDATA *sortTarget = g_Head.pNext;
+        USERDATA *sortCurrentScanPos = g_Head.pNext;
 
-	if ( node1 != node2 )
+        while (sortPos != &g_Tail)
+        {
+                while(sortCurrentScanPos != &g_Tail)
+                {
+                        if (sortTarget->age > sortCurrentScanPos->age)
+                        {
+                                sortTarget = sortCurrentScanPos;
+                        }
+                        sortCurrentScanPos = sortCurrentScanPos->pNext;
+                }
+                changePosition(sortPos, sortTarget);
+                sortPos = sortTarget->pNext;
+                sortTarget = sortPos;
+                sortCurrentScanPos = sortPos;
+        }
+
+}
+
+USERDATA **searchByAgeRange(const int min, const int max)
+{
+	USERDATA *minNode;
+	USERDATA *maxNode;
+	USERDATA *pCurrent = g_Head.pNext;
+	int cnt = 1;
+
+	while (pCurrent->age < min)
 	{
-		pTmp = node1->pPrev;
-		node1->pPrev = node2->pPrev;
-		node2->pPrev = pTmp;
-
-		pTmp = node1->pPrev->pNext;
-		node1->pPrev->pNext = node2->pPrev->pNext;
-		node2->pPrev->pNext = pTmp;
-
-		pTmp = node1->pNext;
-		node1->pNext = node2->pNext;
-		node2->pNext = pTmp;
-
-		pTmp = node1->pNext->pPrev;
-		node1->pNext->pPrev = node2->pNext->pPrev;
-		node2->pNext->pPrev = pTmp;
+		if (pCurrent->pNext == &g_Tail || pCurrent->pNext->age >= max)
+		{
+			printf("There is no data matching condition.\n");
+			return NULL;
+		}
+		pCurrent = pCurrent->pNext;
 	}
+	minNode = pCurrent;
+	
+
+	pCurrent = g_Tail.pPrev;
+
+	while (pCurrent->age > max)
+	{
+		if (pCurrent->pPrev == &g_Head || pCurrent->pPrev->age <= min)
+		{
+			printf("There is no data matching condition.\n");
+			return NULL;
+		}
+		pCurrent = pCurrent->pPrev;
+	}
+	maxNode = pCurrent;
+
+	pCurrent = minNode;
+
+	while(pCurrent != maxNode)
+	{
+		cnt++;
+		pCurrent = pCurrent->pNext;
+	}
+
+	USERDATA **searchResult = malloc(sizeof(USERDATA *) * (cnt + 1));
+	memset(searchResult, 0, sizeof(searchResult));
+	pCurrent = minNode;
+	int arrPos = 0;
+	for(int i = 0; i < cnt; i++)
+	{
+		searchResult[i] = pCurrent;
+		pCurrent = pCurrent->pNext;
+	}
+
+	return searchResult;	
+}
+
+void printSearchedNodes(USERDATA **pResult)
+{
+	if (pResult != NULL)
+	{
+		for(int i = 0; pResult[i] != NULL; i++)
+		{
+		printf("[%p] %d, %s, %s\n", pResult[i], pResult[i]->age, pResult[i]->name, pResult[i]->phone);
+		}
+	}
+	free(pResult);
 }

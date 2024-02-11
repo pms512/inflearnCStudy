@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "ui.h"
 #include "test.h"
+#include "funcs.h"
 
 void addEvent(void)
 {
@@ -14,7 +15,29 @@ void updateEvent(void)
 
 void selectEvent(void)
 {
-	printf("You called selectEvent function.\n\n");
+	int min = 0;
+	int max = 1;
+	int tmp = 0;
+
+	USERDATA **pResult = NULL;
+
+	printf("Input age range : ");
+	scanf("%d %d", &min, &max);
+
+	if (min > max)
+	{
+		printf("Min value is greater than max value. Changing..\n");
+		tmp = min;
+		min = max;
+		max = tmp;
+	}
+	printf("Min : %d, Max : %d\n", min, max);
+	sortByAge();
+
+	pResult = searchByAgeRange(min, max);
+	
+	printSearchedNodes(pResult);
+
 }
 
 void deleteEvent(void)
@@ -27,16 +50,20 @@ void exitEvent(void)
 	printf("You called exitEvent function.\n\n");
 }
 
+void printAllEvent(void)
+{
+	printAllNodes();
+}
+
 void eventLoop(void)
 {
-	actionType action;
-
-	while(action != EXIT)
+	commandType command = 0;
+	while(command != EXIT)
 	{
-		printf("[0]Add   [1]Update   [2]Select   [3]Delete   [4]Exit\n");
-		scanf("%d", &action);
-
-		switch(action)
+		printf("[0]Add   [1]Update   [2]Select   [3]PrintAllNodes   [4]Delete   [5]Exit\n");
+		scanf("%d", &command);
+		
+		switch(command)
 		{
 			case ADD:
 				addEvent();
@@ -50,8 +77,16 @@ void eventLoop(void)
 				selectEvent();
 				break;
 
+			case PRINTALL:
+				printAllEvent();
+				break;
+
 			case DELETE:
 				deleteEvent();
+				break;
+
+			case EXIT:
+				exitEvent();
 				break;
 
 			default:
@@ -59,7 +94,6 @@ void eventLoop(void)
 				break;
 		}
 	}
-	exitEvent();
 }
 
 

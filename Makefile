@@ -1,7 +1,7 @@
 .SUFFIXES: .c .o
 
 CC=gcc
-CFLAGS=-g
+CFLAGS=-g -std=c99
 INC=-I./include
 
 SRC_DIR=./src
