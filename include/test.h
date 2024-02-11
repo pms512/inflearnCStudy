@@ -11,4 +11,7 @@ void test_pop();
 void test_enqueue();
 void test_dequeue();
 void addInitData();
-
+void test_sort1();
+void test_sort2();
+void test_sort3();
+void test_sort4();

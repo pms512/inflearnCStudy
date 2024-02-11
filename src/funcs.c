@@ -28,7 +28,7 @@ USERDATA *searchByName(const char *searchName)
 void printAllNodes()
 {
         USERDATA *pCurrent = &g_Head;
-        printf("====[Remaining data]====\n");
+        printf("Printing all nodes..\n");
         while(pCurrent != NULL)
         {
         printf("[[%p]][%p] %s, %d, %s [[%p]]\n", pCurrent->pPrev, pCurrent, pCurrent->name, pCurrent->age, pCurrent->phone, pCurrent->pNext);
@@ -150,4 +150,51 @@ void removeNode(const char *searchName)
                 targetNode->pNext->pPrev = targetNode->pPrev;
                 free(targetNode);
         }
+}
+
+void sortByName()
+{
+	USERDATA *sortPos = g_Head.pNext;
+	USERDATA *sortTarget = g_Head.pNext;
+	USERDATA *sortCurrentScanPos = g_Head.pNext;
+
+	while (sortPos != &g_Tail)
+	{
+		while(sortCurrentScanPos != &g_Tail)
+		{
+			if (strcmp(sortTarget->name, sortCurrentScanPos->name) > 0)
+			{
+				sortTarget = sortCurrentScanPos;
+			}
+			sortCurrentScanPos = sortCurrentScanPos->pNext;
+		}
+		changePosition(sortPos, sortTarget);
+		sortPos = sortTarget->pNext;
+		sortTarget = sortPos;
+		sortCurrentScanPos = sortPos;
+	}
+}
+
+void changePosition(USERDATA *node1, USERDATA *node2)
+{
+	USERDATA *pTmp;
+
+	if ( node1 != node2 )
+	{
+		pTmp = node1->pPrev;
+		node1->pPrev = node2->pPrev;
+		node2->pPrev = pTmp;
+
+		pTmp = node1->pPrev->pNext;
+		node1->pPrev->pNext = node2->pPrev->pNext;
+		node2->pPrev->pNext = pTmp;
+
+		pTmp = node1->pNext;
+		node1->pNext = node2->pNext;
+		node2->pNext = pTmp;
+
+		pTmp = node1->pNext->pPrev;
+		node1->pNext->pPrev = node2->pNext->pPrev;
+		node2->pNext->pPrev = pTmp;
+	}
 }

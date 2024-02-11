@@ -12,3 +12,5 @@ void pushNode(const char *newName, int newAge, const char *newPhone);
 USERDATA *popNode();
 void enqueueNode(const char *newName, int newAge, const char *newPhone);
 USERDATA *dequeueNode();
+void sortByName();
+void changePosition(USERDATA *node1, USERDATA *node2);

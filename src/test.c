@@ -99,3 +99,61 @@ void test_removeTailNode()
         printAllNodes();
         removeAllNodes();
 }
+
+void test_sort1()
+{
+	printf("===== test_sort1 =====\n");
+	addNewNode("aaaa", 20, "010-1111-1111");
+	printf("\n");	
+	printAllNodes();
+	printf("sorting...\n\n");
+	sortByName();
+	printAllNodes();
+	removeAllNodes();
+	printf("---------------------------------------------------------\n");
+}
+
+void test_sort2()
+{
+	printf("===== test_sort2 =====\n");
+	addNewNode("aacc", 20, "010-1111-1234");
+	addNewNode("aaaa", 20, "010-1111-1111");
+	printf("\n");	
+	printAllNodes();
+	printf("sorting...\n\n");
+	sortByName();
+	printAllNodes();
+	removeAllNodes();
+	printf("---------------------------------------------------------\n");
+}
+
+void test_sort3()
+{
+	printf("===== test_sort3 =====\n");
+	addNewNode("aaaa35834", 20, "010-1111-3582");
+	addNewNode("aaaa", 20, "010-1111-1111");
+	printf("\n");	
+	printAllNodes();
+	printf("sorting...\n\n");
+	sortByName();
+	printAllNodes();
+	removeAllNodes();
+	printf("---------------------------------------------------------\n");
+}
+
+void test_sort4()
+{
+	printf("===== test_sort4 =====\n");
+	addNewNode("Jay", 10, "010-2342-5780");
+	addNewNode("Chloe", 20, "010-2346-2273");
+	addNewNode("Amy", 30, "010-4592-0112");
+	addNewNode("Chloe", 20, "010-2346-2273");
+	addNewNode("Jason", 22, "010-4478-5903");
+	printf("\n");	
+	printAllNodes();
+	printf("sorting...\n\n");
+	sortByName();
+	printAllNodes();
+	removeAllNodes();
+	printf("---------------------------------------------------------\n");
+}
