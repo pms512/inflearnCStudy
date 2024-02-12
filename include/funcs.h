@@ -17,3 +17,7 @@ void changePosition(USERDATA *node1, USERDATA *node2);
 void sortByAge();
 USERDATA **searchByAgeRange(const int min, const int max);
 void printSearchedNodes(USERDATA **pResult);
+int getNodeCount();
+USERDATA **createAgeIndex();
+void printByIndex(USERDATA **index);
+USERDATA **searchByAgeIndex(USERDATA **index, const int min, const int max);

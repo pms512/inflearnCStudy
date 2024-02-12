@@ -286,3 +286,116 @@ void printSearchedNodes(USERDATA **pResult)
 	}
 	free(pResult);
 }
+
+int getNodeCount()
+{
+	USERDATA *pCurrent = g_Head.pNext;
+	int cnt = 0;
+
+	while(pCurrent != &g_Tail)
+	{
+		cnt++;
+		pCurrent = pCurrent->pNext;
+	}
+	return cnt;
+}
+
+USERDATA **createAgeIndex()
+{
+	USERDATA **ageIndex = NULL;
+	int cnt = getNodeCount();
+	ageIndex = malloc(sizeof(USERDATA *) * cnt);
+	USERDATA *tmp = NULL;
+	USERDATA *pCurrent = g_Head.pNext;
+	
+	//Input address of node into ageIndex
+	for (int i = 0; i < cnt; i++)
+	{
+		ageIndex[i] = pCurrent;
+		pCurrent = pCurrent->pNext;
+	}
+
+	//bubble sort
+	for (int i = cnt - 1; i > 0; i--)
+	{
+		for (int j = 0; j < i; j++)
+		{
+			if(ageIndex[j]->age > ageIndex[j+1]->age)
+			{
+				tmp = ageIndex[j];
+				ageIndex[j] = ageIndex[j + 1];
+				ageIndex[j + 1] = tmp;
+			}
+		}
+	}
+	return ageIndex;
+}
+
+void printByIndex(USERDATA **index)
+{
+	int cnt = getNodeCount();
+
+	for (int i = 0; i < cnt; i++)
+	{
+		printf("%s, %d\n", index[i]->name, index[i]->age);
+	}
+
+	free(index);
+
+}
+
+USERDATA **searchByAgeIndex(USERDATA **index, const int min, const int max)
+{
+	USERDATA *minIndex;
+	USERDATA *maxIndex;
+	int idxCount = getNodeCount();
+	int minPos = -1;
+	int maxPos = -1;
+	int cnt = 1;
+
+	for (int i = 0; i < idxCount; i++)
+	{
+		if(index[i]->age >= min)
+		{
+			minIndex = index[i];
+			minPos = i;
+			break;
+		}
+	}
+
+	if (minPos == -1)
+	{
+		printf("There is no proper data.\n");
+		return NULL;
+	}
+
+	for (int j = minPos; j < idxCount; j++)
+	{
+		if(index[j]->age > max)
+		{
+			maxIndex = index[j-1];
+			maxPos = j-1;
+			break;
+		}
+		else if(j == idxCount - 1)
+		{
+			maxPos = j;
+		}
+	}
+
+	if ( minPos > maxPos)
+	{
+		printf("There is no proper data.\n");
+		return NULL;
+	}
+
+	USERDATA **searchResult = malloc(sizeof(USERDATA *) * (maxPos - minPos + 2));
+	int tmpPos = 0;
+	for (int i = minPos; i <= maxPos; i++)
+	{
+		searchResult[tmpPos] = index[i];
+		tmpPos++;
+	}
+
+	return searchResult;
+}

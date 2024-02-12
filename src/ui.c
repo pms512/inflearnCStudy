@@ -19,6 +19,8 @@ void selectEvent(void)
 	int max = 1;
 	int tmp = 0;
 
+	USERDATA **index = NULL;
+
 	USERDATA **pResult = NULL;
 
 	printf("Input age range : ");
@@ -32,11 +34,18 @@ void selectEvent(void)
 		max = tmp;
 	}
 	printf("Min : %d, Max : %d\n", min, max);
+/*
+	//Using sort
 	sortByAge();
-
 	pResult = searchByAgeRange(min, max);
-	
 	printSearchedNodes(pResult);
+*/
+
+	//Using index
+	index = createAgeIndex();
+	pResult = searchByAgeIndex(index, min, max);
+	printSearchedNodes(pResult);
+	free(index);
 
 }
 
@@ -55,12 +64,17 @@ void printAllEvent(void)
 	printAllNodes();
 }
 
+void countEvent(void)
+{
+	printf("COUNT : %d\n", getNodeCount());
+}
+
 void eventLoop(void)
 {
 	commandType command = 0;
 	while(command != EXIT)
 	{
-		printf("[0]Add   [1]Update   [2]Select   [3]PrintAllNodes   [4]Delete   [5]Exit\n");
+		printf("[0]Add   [1]Update   [2]Select   [3]PrintAllNodes   [4]Delete   [5]Count   [6]Exit\n");
 		scanf("%d", &command);
 		
 		switch(command)
@@ -83,6 +97,10 @@ void eventLoop(void)
 
 			case DELETE:
 				deleteEvent();
+				break;
+
+			case COUNT:
+				countEvent();
 				break;
 
 			case EXIT:

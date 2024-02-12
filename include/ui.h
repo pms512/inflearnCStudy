@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-typedef enum commandType {ADD, UPDATE, SELECT, PRINTALL, DELETE, EXIT} commandType;
+typedef enum commandType {ADD, UPDATE, SELECT, PRINTALL, DELETE, COUNT, EXIT} commandType;
 
 
 void addEvent(void);
@@ -11,3 +11,4 @@ void exitEvent(void);
 void eventLoop(void);
 void testLoop(void);
 void printAllEvent(void);
+void countEvent(void);
