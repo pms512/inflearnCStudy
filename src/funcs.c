@@ -3,13 +3,13 @@
 #include <string.h>
 #include "init.h"
 
-USERDATA *searchByName(const char *searchName)
+MYNODE *searchByName(const char *searchName)
 {
-        USERDATA *pCurrent = g_Head.pNext;
+        MYNODE *pCurrent = g_Head.pNext;
 
         while ( pCurrent != &g_Tail )
         {
-                if ( strcmp(pCurrent->name, searchName) == 0 )
+                if ( strcmp(((USERDATA*)pCurrent->pData)->name, searchName) == 0 )
                 {
                         printf("Found data - name : %s [%p]\n", searchName, pCurrent);
                         return pCurrent;
@@ -27,13 +27,19 @@ USERDATA *searchByName(const char *searchName)
 
 void printAllNodes()
 {
-        USERDATA *pCurrent = &g_Head;
+        MYNODE *pCurrent = &g_Head;
         printf("Printing all nodes..\n");
         printf("[[pPrev]][pCurrent] name\tage\tphone [[pNext]]\n");
         printf("=========================================================================\n");
         while(pCurrent != NULL)
         {
-        printf("[[%p]][%p] %s\t%d\t%s [[%p]]\n", pCurrent->pPrev, pCurrent, pCurrent->name, pCurrent->age, pCurrent->phone, pCurrent->pNext);
+        printf("[[%p]][%p] %s\t%d\t%s [[%p]]\n", 
+		pCurrent->pPrev, 
+		pCurrent, 
+		((USERDATA*)pCurrent->pData)->name, 
+		((USERDATA*)pCurrent->pData)->age, 
+		((USERDATA*)pCurrent->pData)->phone, 
+		pCurrent->pNext);
         pCurrent = pCurrent->pNext;
         }
         printf("\n");
@@ -46,110 +52,54 @@ void addNewNode(const char *newName, int newAge, const char *newPhone)
         strcpy(newNode->name, newName);
         newNode->age = newAge;
         strcpy(newNode->phone, newPhone);
+	
+	MYNODE *newMyNode = malloc(sizeof(MYNODE));
 
-        g_Tail.pPrev->pNext = newNode;
-        newNode->pPrev = g_Tail.pPrev;
+	newMyNode->pData = newNode;
 
-        g_Tail.pPrev = newNode;
-        newNode->pNext = &g_Tail;
+        g_Tail.pPrev->pNext = newMyNode;
+        newMyNode->pPrev = g_Tail.pPrev;
 
-        printf("Added data : [%p] %s, %d, %s\n", newNode, newNode->name, newNode->age, newNode->phone);
+        g_Tail.pPrev = newMyNode;
+        newMyNode->pNext = &g_Tail;
+
+        printf("Added data : [%p] %s, %d, %s\n", newMyNode, 
+						 newNode->name,
+						 newNode->age,
+						 newNode->phone
+						 );
 }
 
-void updateNode(USERDATA *targetNode, const char *updatedName, int updatedAge, const char *updatedPhone)
+void updateNode(MYNODE *targetNode, const char *updatedName, int updatedAge, const char *updatedPhone)
 {
-	strcpy(targetNode->name, updatedName);
-	targetNode->age = updatedAge;
-	strcpy(targetNode->phone, updatedPhone);
+	strcpy(((USERDATA*)targetNode->pData)->name, updatedName);
+	((USERDATA*)targetNode->pData)->age = updatedAge;
+	strcpy(((USERDATA*)targetNode->pData)->phone, updatedPhone);
 }
 
 
 void removeAllNodes()
 {
-        USERDATA *targetNode = NULL;
+        MYNODE *targetNode = NULL;
         printf("=== Removing all nodes and indexes..===\n");
         while(g_Head.pNext != &g_Tail)
         {
                 targetNode = g_Head.pNext;
                 g_Head.pNext = targetNode->pNext;
                 g_Head.pNext->pPrev = &g_Head;
+		free(targetNode->pData);
                 free(targetNode);
         }
+	free(g_Head.pData);
+	free(g_Tail.pData);
 	free(ageIndex);
 	free(nameIndex);
 
 }
 
-
-void pushNode(const char *newName, int newAge, const char *newPhone)
-{
-        USERDATA *newNode = malloc(sizeof(USERDATA));
-        memset(newNode, 0, sizeof(USERDATA));
-        strcpy(newNode->name, newName);
-        newNode->age = newAge;
-        strcpy(newNode->phone, newPhone);
-
-        g_Tail.pPrev->pNext = newNode;
-        newNode->pPrev = g_Tail.pPrev;
-
-        g_Tail.pPrev = newNode;
-        newNode->pNext = &g_Tail;
-
-        printf("Pushed data : [%p] %s, %d, %s\n", newNode, newNode->name, newNode->age, newNode->phone);
-}
-
-USERDATA *popNode()
-{
-         USERDATA *targetNode = g_Tail.pPrev;
-
-         if (g_Tail.pPrev == &g_Head)
-         {
-                 printf("There is no data to pop.\n");
-                 return NULL;
-         }
-
-         g_Tail.pPrev = targetNode->pPrev;
-         targetNode->pPrev->pNext = &g_Tail;
-
-         return targetNode;
-}
-
-void enqueueNode(const char *newName, int newAge, const char *newPhone)
-{
-        USERDATA *newNode = malloc(sizeof(USERDATA));
-        memset(newNode, 0, sizeof(USERDATA));
-        strcpy(newNode->name, newName);
-        newNode->age = newAge;
-        strcpy(newNode->phone, newPhone);
-
-        g_Tail.pPrev->pNext = newNode;
-        newNode->pPrev = g_Tail.pPrev;
-
-        g_Tail.pPrev = newNode;
-        newNode->pNext = &g_Tail;
-
-        printf("Enqueued data : [%p] %s, %d, %s\n", newNode, newNode->name, newNode->age, newNode->phone);
-}
-
-USERDATA *dequeueNode()
-{
-         USERDATA *targetNode = g_Head.pNext;
-
-         if (g_Head.pNext == &g_Tail)
-         {
-                 printf("There is no data to dequeue.\n");
-                 return NULL;
-         }
-
-         g_Head.pNext = targetNode->pNext;
-         targetNode->pNext->pPrev = &g_Head;
-
-         return targetNode;
-}
-
 int removeNode(const char *searchName)
 {
-        USERDATA *targetNode = searchByName(searchName);
+        MYNODE *targetNode = searchByName(searchName);
         if ( targetNode == NULL )
         {
                 printf("There is no data to remove. - name : %s\n", searchName);
@@ -157,95 +107,25 @@ int removeNode(const char *searchName)
         }
         else
         {
-                printf("Removing data - name : %s\n", targetNode->name);
+                printf("Removing data - name : %s\n", ((USERDATA*)targetNode->pData)->name);
                 targetNode->pPrev->pNext = targetNode->pNext;
                 targetNode->pNext->pPrev = targetNode->pPrev;
+		free(targetNode->pData);
                 free(targetNode);
 		return 0;
         }
 }
 
-void changePosition(USERDATA *node1, USERDATA *node2)
+MYNODE **searchByAgeRange(const int min, const int max)
 {
-	USERDATA *pTmp;
-
-	if ( node1 != node2 )
-	{
-		pTmp = node1->pPrev;
-		node1->pPrev = node2->pPrev;
-		node2->pPrev = pTmp;
-
-		pTmp = node1->pPrev->pNext;
-		node1->pPrev->pNext = node2->pPrev->pNext;
-		node2->pPrev->pNext = pTmp;
-
-		pTmp = node1->pNext;
-		node1->pNext = node2->pNext;
-		node2->pNext = pTmp;
-
-		pTmp = node1->pNext->pPrev;
-		node1->pNext->pPrev = node2->pNext->pPrev;
-		node2->pNext->pPrev = pTmp;
-	}
-}
-
-void sortByName()
-{
-	USERDATA *sortPos = g_Head.pNext;
-	USERDATA *sortTarget = g_Head.pNext;
-	USERDATA *sortCurrentScanPos = g_Head.pNext;
-
-	while (sortPos != &g_Tail)
-	{
-		while(sortCurrentScanPos != &g_Tail)
-		{
-			if (strcmp(sortTarget->name, sortCurrentScanPos->name) > 0)
-			{
-				sortTarget = sortCurrentScanPos;
-			}
-			sortCurrentScanPos = sortCurrentScanPos->pNext;
-		}
-		changePosition(sortPos, sortTarget);
-		sortPos = sortTarget->pNext;
-		sortTarget = sortPos;
-		sortCurrentScanPos = sortPos;
-	}
-}
-
-void sortByAge()
-{
-        USERDATA *sortPos = g_Head.pNext;
-        USERDATA *sortTarget = g_Head.pNext;
-        USERDATA *sortCurrentScanPos = g_Head.pNext;
-
-        while (sortPos != &g_Tail)
-        {
-                while(sortCurrentScanPos != &g_Tail)
-                {
-                        if (sortTarget->age > sortCurrentScanPos->age)
-                        {
-                                sortTarget = sortCurrentScanPos;
-                        }
-                        sortCurrentScanPos = sortCurrentScanPos->pNext;
-                }
-                changePosition(sortPos, sortTarget);
-                sortPos = sortTarget->pNext;
-                sortTarget = sortPos;
-                sortCurrentScanPos = sortPos;
-        }
-
-}
-
-USERDATA **searchByAgeRange(const int min, const int max)
-{
-	USERDATA *minNode;
-	USERDATA *maxNode;
-	USERDATA *pCurrent = g_Head.pNext;
+	MYNODE *minNode;
+	MYNODE *maxNode;
+	MYNODE *pCurrent = g_Head.pNext;
 	int cnt = 1;
 
-	while (pCurrent->age < min)
+	while (((USERDATA*)pCurrent->pData)->age < min)
 	{
-		if (pCurrent->pNext == &g_Tail || pCurrent->pNext->age >= max)
+		if (pCurrent->pNext == &g_Tail || ((USERDATA*)pCurrent->pNext->pData)->age >= max)
 		{
 			printf("There is no data matching condition.\n");
 			return NULL;
@@ -257,9 +137,9 @@ USERDATA **searchByAgeRange(const int min, const int max)
 
 	pCurrent = g_Tail.pPrev;
 
-	while (pCurrent->age > max)
+	while (((USERDATA*)pCurrent->pData)->age > max)
 	{
-		if (pCurrent->pPrev == &g_Head || pCurrent->pPrev->age <= min)
+		if (pCurrent->pPrev == &g_Head || ((USERDATA*)pCurrent->pPrev->pData)->age <= min)
 		{
 			printf("There is no data matching condition.\n");
 			return NULL;
@@ -276,7 +156,7 @@ USERDATA **searchByAgeRange(const int min, const int max)
 		pCurrent = pCurrent->pNext;
 	}
 
-	USERDATA **searchResult = malloc(sizeof(USERDATA *) * (cnt + 1));
+	MYNODE **searchResult = malloc(sizeof(MYNODE *) * (cnt + 1));
 	memset(searchResult, 0, sizeof(searchResult));
 	pCurrent = minNode;
 	int arrPos = 0;
@@ -289,7 +169,7 @@ USERDATA **searchByAgeRange(const int min, const int max)
 	return searchResult;	
 }
 
-void printSearchedNodes(USERDATA **pResult)
+void printSearchedNodes(MYNODE **pResult)
 {
 	printf("[pCurrent]\tAge\tName\tPhone\n");
 	printf("=============================================\n");
@@ -297,7 +177,11 @@ void printSearchedNodes(USERDATA **pResult)
 	{
 		for(int i = 0; pResult[i] != NULL; i++)
 		{
-		printf("[%p]\t%d\t%s\t%s\n", pResult[i], pResult[i]->age, pResult[i]->name, pResult[i]->phone);
+		printf("[%p]\t%d\t%s\t%s\n", pResult[i], 
+				             ((USERDATA*)pResult[i]->pData)->age, 
+				             ((USERDATA*)pResult[i]->pData)->name, 
+				             ((USERDATA*)pResult[i]->pData)->phone
+					     );
 		}
 		printf("\n");
 	}
@@ -306,7 +190,7 @@ void printSearchedNodes(USERDATA **pResult)
 
 int getNodeCount()
 {
-	USERDATA *pCurrent = g_Head.pNext;
+	MYNODE *pCurrent = g_Head.pNext;
 	int cnt = 0;
 
 	while(pCurrent != &g_Tail)
@@ -317,13 +201,13 @@ int getNodeCount()
 	return cnt;
 }
 
-USERDATA **createAgeIndex()
+MYNODE **createAgeIndex()
 {
-	USERDATA **ageIndex = NULL;
+	MYNODE **ageIndex = NULL;
 	int cnt = getNodeCount();
-	ageIndex = malloc(sizeof(USERDATA *) * cnt);
-	USERDATA *tmp = NULL;
-	USERDATA *pCurrent = g_Head.pNext;
+	ageIndex = malloc(sizeof(MYNODE *) * cnt);
+	MYNODE *tmp = NULL;
+	MYNODE *pCurrent = g_Head.pNext;
 	
 	//Input address of node into ageIndex
 	for (int i = 0; i < cnt; i++)
@@ -337,7 +221,7 @@ USERDATA **createAgeIndex()
 	{
 		for (int j = 0; j < i; j++)
 		{
-			if(ageIndex[j]->age > ageIndex[j+1]->age)
+			if(((USERDATA*)ageIndex[j]->pData)->age > ((USERDATA*)ageIndex[j+1]->pData)->age)
 			{
 				tmp = ageIndex[j];
 				ageIndex[j] = ageIndex[j + 1];
@@ -348,13 +232,13 @@ USERDATA **createAgeIndex()
 	return ageIndex;
 }
 
-USERDATA **createNameIndex()
+MYNODE **createNameIndex()
 {
-	USERDATA **nameIndex = NULL;
+	MYNODE **nameIndex = NULL;
 	int cnt = getNodeCount();
-	nameIndex = malloc(sizeof(USERDATA *) * cnt);
-	USERDATA *tmp = NULL;
-	USERDATA *pCurrent = g_Head.pNext;
+	nameIndex = malloc(sizeof(MYNODE *) * cnt);
+	MYNODE *tmp = NULL;
+	MYNODE *pCurrent = g_Head.pNext;
 	
 	//Input address of node into nameIndex
 	for (int i = 0; i < cnt; i++)
@@ -368,7 +252,7 @@ USERDATA **createNameIndex()
 	{
 		for (int j = 0; j < i; j++)
 		{	
-			if( strcmp(nameIndex[j]->name, nameIndex[j+1]->name) > 0 )
+			if( strcmp(((USERDATA*)nameIndex[j]->pData)->name, ((USERDATA*)nameIndex[j+1]->pData)->name) > 0 )
 			{
 				tmp = nameIndex[j];
 				nameIndex[j] = nameIndex[j + 1];
@@ -379,22 +263,26 @@ USERDATA **createNameIndex()
 	return nameIndex;
 }
 
-void printByIndex(USERDATA **index)
+void printByIndex(MYNODE **index)
 {
 	int cnt = getNodeCount();
 	printf("Name\tAge\tPhone\n");
 	printf("=====================================\n");
 	for (int i = 0; i < cnt; i++)
 	{
-		printf("%s\t%d\t%s\n", index[i]->name, index[i]->age, index[i]->phone);
+		printf("%s\t%d\t%s\n", 
+			((USERDATA*)index[i]->pData)->name, 
+			((USERDATA*)index[i]->pData)->age, 
+			((USERDATA*)index[i]->pData)->phone
+			);
 	}
 	printf("\n");
 }
 
-USERDATA **searchByAgeIndex(USERDATA **index, const int min, const int max)
+MYNODE **searchByAgeIndex(MYNODE **index, const int min, const int max)
 {
-	USERDATA *minIndex;
-	USERDATA *maxIndex;
+	MYNODE *minIndex;
+	MYNODE *maxIndex;
 	int idxCount = getNodeCount();
 	int minPos = -1;
 	int maxPos = -1;
@@ -402,7 +290,7 @@ USERDATA **searchByAgeIndex(USERDATA **index, const int min, const int max)
 
 	for (int i = 0; i < idxCount; i++)
 	{
-		if(index[i]->age >= min)
+		if(((USERDATA*)index[i]->pData)->age >= min)
 		{
 			minIndex = index[i];
 			minPos = i;
@@ -418,7 +306,7 @@ USERDATA **searchByAgeIndex(USERDATA **index, const int min, const int max)
 
 	for (int j = minPos; j < idxCount; j++)
 	{
-		if(index[j]->age > max)
+		if(((USERDATA*)index[j]->pData)->age > max)
 		{
 			maxIndex = index[j-1];
 			maxPos = j-1;
@@ -436,7 +324,7 @@ USERDATA **searchByAgeIndex(USERDATA **index, const int min, const int max)
 		return NULL;
 	}
 
-	USERDATA **searchResult = malloc(sizeof(USERDATA *) * (maxPos - minPos + 2));
+	MYNODE **searchResult = malloc(sizeof(MYNODE *) * (maxPos - minPos + 2));
 	int tmpPos = 0;
 	for (int i = minPos; i <= maxPos; i++)
 	{
@@ -455,6 +343,6 @@ void rebuildIndexes()
 	ageIndex = createAgeIndex();
 
 	free(nameIndex);
-        printf("Rebuilding ageIndex..\n");
+        printf("Rebuilding nameIndex..\n");
 	nameIndex = createNameIndex();
 }

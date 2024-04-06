@@ -25,7 +25,7 @@ void addEvent(void)
 void updateEvent(void)
 {
 	char targetName[20];
-	USERDATA *updateTarget = NULL;
+	MYNODE *updateTarget = NULL;
 
 	char updatedName[20];
 	int updatedAge;
@@ -57,9 +57,9 @@ void selectEvent(void)
 	int max = 1;
 	int tmp = 0;
 
-	USERDATA **index = NULL;
+	MYNODE **index = NULL;
 
-	USERDATA **pResult = NULL;
+	MYNODE **pResult = NULL;
 
 	printf("Input age range : ");
 	scanf("%d %d", &min, &max);
@@ -72,18 +72,8 @@ void selectEvent(void)
 		max = tmp;
 	}
 	printf("Min : %d, Max : %d\n", min, max);
-/*
-	//Using sort
-	sortByAge();
-	pResult = searchByAgeRange(min, max);
-	printSearchedNodes(pResult);
-*/
-
-	//Using index
-//	index = createAgeIndex();
 	pResult = searchByAgeIndex(ageIndex, min, max);
 	printSearchedNodes(pResult);
-//	free(index);
 
 }
 
@@ -131,7 +121,13 @@ void eventLoop(void)
 	commandType command;
 	while(command != EXIT)
 	{
-		printf("[1]Add   [2]Update   [3]Select   [4]PrintAllNodes   [5]Delete   [6]Count   [7]PrintByAgeIndex    [8]PrintByNameIndex    [9]Exit\n");
+		printf("\n");
+		printf("==================[INPUT COMMAND NUMBER]==================\n");
+		printf("[1]Add\t\t\t[2]Update\t\t[3]Select\n");
+	        printf("[4]PrintAllNodes\t[5]Delete\t\t[6]Count\n");
+	        printf("[7]PrintByAgeIndex\t[8]PrintByNameIndex\t[9]Exit\n");
+		printf("==========================================================\n");
+		printf("input>");
 		scanf("%d", &inputCommand);
 
 		if ( (inputCommand < 1) || (inputCommand > 9) )
@@ -191,37 +187,3 @@ void eventLoop(void)
 
 
 
-void testLoop(void)
-{
-	int testAction = 0;
-
-	while(testAction != 4)
-	{
-		printf("[0]Push   [1]Pop   [2]Enqueue   [3]Dequeue   [4]Exit\n");
-		scanf("%d", &testAction);
-
-		switch(testAction)
-		{
-			case 0:
-				test_push();
-				break;
-				
-			case 1:
-				test_pop();
-				break;
-
-			case 2:
-				test_enqueue();
-				break;
-
-			case 3:
-				test_dequeue();
-				break;
-
-			default:
-				printf("Invalid Input. Please input proper value.\n");
-				break;
-		}
-	}
-	exitEvent();
-}
