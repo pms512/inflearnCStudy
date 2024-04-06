@@ -29,9 +29,11 @@ void printAllNodes()
 {
         USERDATA *pCurrent = &g_Head;
         printf("Printing all nodes..\n");
+        printf("[[pPrev]][pCurrent] name\tage\tphone [[pNext]]\n");
+        printf("=========================================================================\n");
         while(pCurrent != NULL)
         {
-        printf("[[%p]][%p] %s, %d, %s [[%p]]\n", pCurrent->pPrev, pCurrent, pCurrent->name, pCurrent->age, pCurrent->phone, pCurrent->pNext);
+        printf("[[%p]][%p] %s\t%d\t%s [[%p]]\n", pCurrent->pPrev, pCurrent, pCurrent->name, pCurrent->age, pCurrent->phone, pCurrent->pNext);
         pCurrent = pCurrent->pNext;
         }
         printf("\n");
@@ -54,10 +56,18 @@ void addNewNode(const char *newName, int newAge, const char *newPhone)
         printf("Added data : [%p] %s, %d, %s\n", newNode, newNode->name, newNode->age, newNode->phone);
 }
 
+void updateNode(USERDATA *targetNode, const char *updatedName, int updatedAge, const char *updatedPhone)
+{
+	strcpy(targetNode->name, updatedName);
+	targetNode->age = updatedAge;
+	strcpy(targetNode->phone, updatedPhone);
+}
+
+
 void removeAllNodes()
 {
         USERDATA *targetNode = NULL;
-        printf("=== Removing all nodes..===\n");
+        printf("=== Removing all nodes and indexes..===\n");
         while(g_Head.pNext != &g_Tail)
         {
                 targetNode = g_Head.pNext;
@@ -65,6 +75,8 @@ void removeAllNodes()
                 g_Head.pNext->pPrev = &g_Head;
                 free(targetNode);
         }
+	free(ageIndex);
+	free(nameIndex);
 
 }
 
@@ -135,12 +147,13 @@ USERDATA *dequeueNode()
          return targetNode;
 }
 
-void removeNode(const char *searchName)
+int removeNode(const char *searchName)
 {
         USERDATA *targetNode = searchByName(searchName);
         if ( targetNode == NULL )
         {
                 printf("There is no data to remove. - name : %s\n", searchName);
+		return 1;
         }
         else
         {
@@ -148,6 +161,7 @@ void removeNode(const char *searchName)
                 targetNode->pPrev->pNext = targetNode->pNext;
                 targetNode->pNext->pPrev = targetNode->pPrev;
                 free(targetNode);
+		return 0;
         }
 }
 
@@ -277,12 +291,15 @@ USERDATA **searchByAgeRange(const int min, const int max)
 
 void printSearchedNodes(USERDATA **pResult)
 {
+	printf("[pCurrent]\tAge\tName\tPhone\n");
+	printf("=============================================\n");
 	if (pResult != NULL)
 	{
 		for(int i = 0; pResult[i] != NULL; i++)
 		{
-		printf("[%p] %d, %s, %s\n", pResult[i], pResult[i]->age, pResult[i]->name, pResult[i]->phone);
+		printf("[%p]\t%d\t%s\t%s\n", pResult[i], pResult[i]->age, pResult[i]->name, pResult[i]->phone);
 		}
+		printf("\n");
 	}
 	free(pResult);
 }
@@ -331,17 +348,47 @@ USERDATA **createAgeIndex()
 	return ageIndex;
 }
 
+USERDATA **createNameIndex()
+{
+	USERDATA **nameIndex = NULL;
+	int cnt = getNodeCount();
+	nameIndex = malloc(sizeof(USERDATA *) * cnt);
+	USERDATA *tmp = NULL;
+	USERDATA *pCurrent = g_Head.pNext;
+	
+	//Input address of node into nameIndex
+	for (int i = 0; i < cnt; i++)
+	{
+		nameIndex[i] = pCurrent;
+		pCurrent = pCurrent->pNext;
+	}
+
+	//bubble sort
+	for (int i = cnt - 1; i > 0; i--)
+	{
+		for (int j = 0; j < i; j++)
+		{	
+			if( strcmp(nameIndex[j]->name, nameIndex[j+1]->name) > 0 )
+			{
+				tmp = nameIndex[j];
+				nameIndex[j] = nameIndex[j + 1];
+				nameIndex[j + 1] = tmp;
+			}
+		}
+	}
+	return nameIndex;
+}
+
 void printByIndex(USERDATA **index)
 {
 	int cnt = getNodeCount();
-
+	printf("Name\tAge\tPhone\n");
+	printf("=====================================\n");
 	for (int i = 0; i < cnt; i++)
 	{
-		printf("%s, %d\n", index[i]->name, index[i]->age);
+		printf("%s\t%d\t%s\n", index[i]->name, index[i]->age, index[i]->phone);
 	}
-
-	free(index);
-
+	printf("\n");
 }
 
 USERDATA **searchByAgeIndex(USERDATA **index, const int min, const int max)
@@ -383,7 +430,7 @@ USERDATA **searchByAgeIndex(USERDATA **index, const int min, const int max)
 		}
 	}
 
-	if ( minPos > maxPos)
+	if (minPos > maxPos)
 	{
 		printf("There is no proper data.\n");
 		return NULL;
@@ -396,6 +443,18 @@ USERDATA **searchByAgeIndex(USERDATA **index, const int min, const int max)
 		searchResult[tmpPos] = index[i];
 		tmpPos++;
 	}
+	searchResult[tmpPos] = 0;
 
 	return searchResult;
+}
+
+void rebuildIndexes()
+{
+	free(ageIndex);
+        printf("Rebuilding ageIndex..\n");
+	ageIndex = createAgeIndex();
+
+	free(nameIndex);
+        printf("Rebuilding ageIndex..\n");
+	nameIndex = createNameIndex();
 }

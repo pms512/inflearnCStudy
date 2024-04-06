@@ -12,5 +12,7 @@ typedef struct USERDATA {
 //declare global pointer variable : g_Head, g_Tail
 USERDATA g_Head;
 USERDATA g_Tail;
+USERDATA **ageIndex;
+USERDATA **nameIndex;
 #endif /* INIT_H */
 void initData();

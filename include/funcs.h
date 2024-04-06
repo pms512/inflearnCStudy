@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include "init.h"
 
-void removeNode(const char *searchName);
+int removeNode(const char *searchName);
 USERDATA *searchByName(const char *searchName);
 void printAllNodes();
 void addNewNode(const char *newName, int newAge, const char *newPhone);
@@ -21,3 +21,6 @@ int getNodeCount();
 USERDATA **createAgeIndex();
 void printByIndex(USERDATA **index);
 USERDATA **searchByAgeIndex(USERDATA **index, const int min, const int max);
+USERDATA **createNameIndex();
+USERDATA *updateNodeupdateNode(USERDATA *targetNode, const char *updatedName, int updatedAge, const char *updatedPhone);
+void rebuildIndexes();

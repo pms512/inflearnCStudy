@@ -1,16 +1,54 @@
 #include <stdio.h>
 #include "ui.h"
+#include "init.h"
 #include "test.h"
 #include "funcs.h"
 
 void addEvent(void)
 {
-	printf("You called addEvent function.\n\n");
+	char addName[20];
+	int addAge;
+	char addPhone[15];
+
+	printf("Input new name : ");
+	scanf("%s", addName);
+	printf("Input new age : ");
+	scanf("%d", &addAge);
+	printf("Input new phone : ");
+	scanf("%s", addPhone);
+
+	addNewNode(addName, addAge, addPhone);
+	
+	rebuildIndexes();	
 }
 
 void updateEvent(void)
 {
-	printf("You called updateEvent function.\n\n");
+	char targetName[20];
+	USERDATA *updateTarget = NULL;
+
+	char updatedName[20];
+	int updatedAge;
+	char updatedPhone[15];
+
+	printf("Input target name to be updated : ");
+	scanf("%s", targetName);
+	updateTarget = searchByName(targetName);
+
+	if (updateTarget == NULL)
+	{
+		return;
+	}
+	printf("Input updated name : ");
+	scanf("%s", updatedName);
+	printf("Input new age : ");
+	scanf("%d", &updatedAge);
+	printf("Input new phone : ");
+	scanf("%s", updatedPhone);
+
+	updateNode(updateTarget, updatedName, updatedAge, updatedPhone);
+	
+	rebuildIndexes();	
 }
 
 void selectEvent(void)
@@ -42,16 +80,24 @@ void selectEvent(void)
 */
 
 	//Using index
-	index = createAgeIndex();
-	pResult = searchByAgeIndex(index, min, max);
+//	index = createAgeIndex();
+	pResult = searchByAgeIndex(ageIndex, min, max);
 	printSearchedNodes(pResult);
-	free(index);
+//	free(index);
 
 }
 
 void deleteEvent(void)
 {
-	printf("You called deleteEvent function.\n\n");
+	char targetName[20];
+	int deleteResult;
+	printf("Input name to remove : ");
+	scanf("%s",targetName);
+	deleteResult = removeNode(targetName);
+	
+	if (deleteResult == 1) return;
+	
+	rebuildIndexes();
 }
 
 void exitEvent(void)
@@ -69,47 +115,76 @@ void countEvent(void)
 	printf("COUNT : %d\n", getNodeCount());
 }
 
+void printByAgeIndexEvent(void)
+{
+	printByIndex(ageIndex);
+}
+
+void printByNameIndexEvent(void)
+{
+	printByIndex(nameIndex);
+}
+
 void eventLoop(void)
 {
-	commandType command = 0;
+	int inputCommand;
+	commandType command;
 	while(command != EXIT)
 	{
-		printf("[0]Add   [1]Update   [2]Select   [3]PrintAllNodes   [4]Delete   [5]Count   [6]Exit\n");
-		scanf("%d", &command);
-		
-		switch(command)
+		printf("[1]Add   [2]Update   [3]Select   [4]PrintAllNodes   [5]Delete   [6]Count   [7]PrintByAgeIndex    [8]PrintByNameIndex    [9]Exit\n");
+		scanf("%d", &inputCommand);
+
+		if ( (inputCommand < 1) || (inputCommand > 9) )
 		{
-			case ADD:
-				addEvent();
-				break;
-				
-			case UPDATE:
-				updateEvent();
-				break;
+			printf("Invalid input. Please input proper value (1 ~ 9) \n");
+			return;
+		}
+		else
+		{		
+			command = (commandType) inputCommand;
 
-			case SELECT:
-				selectEvent();
-				break;
+			switch(command)
+			{
+				case ADD:
+					addEvent();
+					break;
+					
+				case UPDATE:
+					updateEvent();
+					break;
 
-			case PRINTALL:
-				printAllEvent();
-				break;
+				case SELECT:
+					selectEvent();
+					break;
 
-			case DELETE:
-				deleteEvent();
-				break;
+				case PRINTALL:
+					printAllEvent();
+					break;
 
-			case COUNT:
-				countEvent();
-				break;
+				case DELETE:
+					deleteEvent();
+					break;
 
-			case EXIT:
-				exitEvent();
-				break;
+				case COUNT:
+					countEvent();
+					break;
 
-			default:
-				printf("Invalid Input. Please input proper value.\n");
-				break;
+				case PRINTBYAGEINDEX:
+					printByAgeIndexEvent();
+					break;
+
+				case PRINTBYNAMEINDEX:
+					printByNameIndexEvent();
+					break;
+
+				case EXIT:
+					exitEvent();
+					break;
+
+				default:
+					printf("Invalid Input. Please input proper value.\n");
+					break;
+			}
 		}
 	}
 }

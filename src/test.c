@@ -11,11 +11,13 @@ void addInitData()
         addNewNode("Jason", 17, "010-4444-4444");
         addNewNode("Dale", 45, "010-5555-5555");
         addNewNode("Loy", 13, "010-6634-1234");
-        addNewNode("Michael", 7, "010-4537-8272");
+        addNewNode("Mike", 7, "010-4537-8272");
         addNewNode("Tom", 18, "010-1220-5282");
         addNewNode("Tony", 22, "010-2532-1123");
         addNewNode("Sam", 6, "010-4587-2390");
         addNewNode("Peggy", 13, "010-5273-4402");
+	ageIndex = createAgeIndex();
+	nameIndex = createNameIndex();
 }
 
 void test_push()
