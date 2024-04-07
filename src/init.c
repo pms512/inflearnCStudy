@@ -13,13 +13,13 @@ void initData()
 	USERDATA *headData = malloc(sizeof(USERDATA));
 	USERDATA *tailData = malloc(sizeof(USERDATA));
 
-	strcpy(headData->name, "_dummyHead_");
-	headData->age = 0;
-	strcpy(headData->phone, "0");
+	strcpy(headData->name, "_dHead_");
+	headData->age = -1;
+	strcpy(headData->phone, "THISISDUMMY");
 	
-	strcpy(tailData->name, "_dummyTail_");
-	tailData->age = 0;
-	strcpy(tailData->phone, "0");
+	strcpy(tailData->name, "_dTail_");
+	tailData->age = -1;
+	strcpy(tailData->phone, "THISISDUMMY");
 	
 	g_Head.pData = headData;
 	g_Tail.pData = tailData;

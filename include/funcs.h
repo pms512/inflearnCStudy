@@ -17,3 +17,6 @@ MYNODE **searchByAgeIndex(MYNODE **index, const int min, const int max);
 MYNODE **createNameIndex();
 MYNODE *updateNode(MYNODE *targetNode, const char *updatedName, int updatedAge, const char *updatedPhone);
 void rebuildIndexes();
+void saveToFile(void);
+void loadFromFile(void);
+void checkSave(void);

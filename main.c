@@ -20,7 +20,7 @@ int main()
 	test_dequeue();
 	printf("===================================[END OF TEST]=====================================\n");
 	*/
-	addInitData();
+	//addInitData();
 	//testLoop();
 	eventLoop();
 

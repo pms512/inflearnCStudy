@@ -28,12 +28,12 @@ MYNODE *searchByName(const char *searchName)
 void printAllNodes()
 {
         MYNODE *pCurrent = &g_Head;
-        printf("Printing all nodes..\n");
-        printf("[[pPrev]][pCurrent] name\tage\tphone [[pNext]]\n");
+        printf("Printing all nodes including dummy nodes..\n");
+        printf("[[pPrev]][pCurrent]\tname\tage\tphone\t\t[[pNext]]\n");
         printf("=========================================================================\n");
         while(pCurrent != NULL)
         {
-        printf("[[%p]][%p] %s\t%d\t%s [[%p]]\n", 
+        printf("[[%p]][%p]\t%s\t%d\t%s\t[[%p]]\n", 
 		pCurrent->pPrev, 
 		pCurrent, 
 		((USERDATA*)pCurrent->pData)->name, 
@@ -345,4 +345,92 @@ void rebuildIndexes()
 	free(nameIndex);
         printf("Rebuilding nameIndex..\n");
 	nameIndex = createNameIndex();
+}
+
+void saveToFile(void)
+{
+	//g_Head 가져오기
+	//->pNext부터 write
+	//g_Tail이면 빠져나오기
+	MYNODE *pCurrent = g_Head.pNext;
+	FILE *fp = fopen("savedata.dat", "wb");
+	
+	int dataCount = getNodeCount();
+
+	if (fp == NULL)
+	{
+		printf("Cannot open file savedata.dat to write data.\n");
+		return;
+	}
+
+	fwrite(&dataCount, sizeof(int), 1, fp);
+	
+	while (pCurrent != &g_Tail)
+	{
+		fwrite(((USERDATA*)pCurrent->pData), sizeof(USERDATA), 1, fp);
+		pCurrent = pCurrent->pNext;
+	}
+
+	printf("Finished save data to savedata.dat\n");
+
+	fclose(fp);
+}
+
+void loadFromFile(void)
+{
+	MYNODE *pCurrent = g_Head.pNext;
+	FILE *fp = fopen("savedata.dat", "rb");
+	USERDATA loadedData;
+
+	int dataCount = 0;
+	
+
+	if (fp == NULL)
+	{
+		printf("Cannot open file savedata.dat\n");
+		return;
+	}
+
+	fread(&dataCount, sizeof(int), 1, fp);
+
+	printf("Count of data from savedata.dat : %d\n", dataCount);
+
+	for(int i = 0; i < dataCount; i++)
+	{
+		fread(&loadedData, sizeof(USERDATA), 1, fp);
+		addNewNode(loadedData.name, loadedData.age, loadedData.phone);
+	}
+
+	rebuildIndexes();
+
+	fclose(fp);
+
+}
+
+void checkSave(void)
+{
+	int saveIt = 0;
+
+	while (saveIt == 0)
+        {
+                printf("Do you want to save current dataset into file?\n");
+		printf("[1] : Yes / [2] : No > \n");
+                scanf("%d", &saveIt);
+
+                if (saveIt == 1)
+                {
+                        printf("Saving dataset into savedata.dat..\n");
+                        saveToFile();
+                }
+                else if (saveIt == 2)
+                {
+                        printf("Skip saving dataset into savedata.dat..\n");
+                }
+                else
+                {
+                        printf("Invalid input. Please input proper character(Y/N).\n");
+                        saveIt = 0;
+                }
+        }
+
 }

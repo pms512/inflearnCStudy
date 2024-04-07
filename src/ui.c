@@ -18,7 +18,9 @@ void addEvent(void)
 	scanf("%s", addPhone);
 
 	addNewNode(addName, addAge, addPhone);
-	
+
+	checkSave();
+
 	rebuildIndexes();	
 }
 
@@ -48,6 +50,8 @@ void updateEvent(void)
 
 	updateNode(updateTarget, updatedName, updatedAge, updatedPhone);
 	
+	checkSave();
+
 	rebuildIndexes();	
 }
 
@@ -73,20 +77,25 @@ void selectEvent(void)
 	}
 	printf("Min : %d, Max : %d\n", min, max);
 	pResult = searchByAgeIndex(ageIndex, min, max);
-	printSearchedNodes(pResult);
-
+	if (pResult != NULL)
+	{
+		printSearchedNodes(pResult);
+	}
 }
 
 void deleteEvent(void)
 {
 	char targetName[20];
 	int deleteResult;
+
 	printf("Input name to remove : ");
 	scanf("%s",targetName);
 	deleteResult = removeNode(targetName);
 	
 	if (deleteResult == 1) return;
 	
+	checkSave();
+
 	rebuildIndexes();
 }
 
@@ -115,6 +124,18 @@ void printByNameIndexEvent(void)
 	printByIndex(nameIndex);
 }
 
+void loadFromFileEvent(void)
+{
+	printf("You called loadFromFileEvent.\n");
+	loadFromFile();
+}
+
+void saveToFileEvent(void)
+{
+	printf("You called saveToFileEvent.\n");
+	saveToFile();
+}
+
 void eventLoop(void)
 {
 	int inputCommand;
@@ -122,17 +143,18 @@ void eventLoop(void)
 	while(command != EXIT)
 	{
 		printf("\n");
-		printf("==================[INPUT COMMAND NUMBER]==================\n");
-		printf("[1]Add\t\t\t[2]Update\t\t[3]Select\n");
-	        printf("[4]PrintAllNodes\t[5]Delete\t\t[6]Count\n");
-	        printf("[7]PrintByAgeIndex\t[8]PrintByNameIndex\t[9]Exit\n");
-		printf("==========================================================\n");
+		printf("===================== [INPUT COMMAND NUMBER] =====================\n");
+		printf("[1]Add\t\t\t[2]Update\t\t[3]Select        |\n");
+	        printf("[4]PrintAllNodes\t[5]Delete\t\t[6]Count         |\n");
+	        printf("[7]PrintByAgeIndex\t[8]PrintByNameIndex\t[9]LoadFromFile  |\n");
+	        printf("[10]SaveToFile\t\t[11]Exit                                 |\n");
+		printf("==================================================================\n");
 		printf("input>");
 		scanf("%d", &inputCommand);
 
-		if ( (inputCommand < 1) || (inputCommand > 9) )
+		if ( (inputCommand < 1) || (inputCommand > 11) )
 		{
-			printf("Invalid input. Please input proper value (1 ~ 9) \n");
+			printf("Invalid input. Please input proper value (1 ~ 11) \n");
 			return;
 		}
 		else
@@ -171,6 +193,14 @@ void eventLoop(void)
 
 				case PRINTBYNAMEINDEX:
 					printByNameIndexEvent();
+					break;
+					
+				case LOADFROMFILE:
+					loadFromFileEvent();
+					break;
+
+				case SAVETOFILE:
+					saveToFileEvent();
 					break;
 
 				case EXIT:
