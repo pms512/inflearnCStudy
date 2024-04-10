@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdbool.h>
 #ifndef INIT_H
 #define INIT_H
 typedef struct USERDATA {
@@ -9,6 +10,10 @@ typedef struct USERDATA {
 
 typedef struct MYNODE {
 	struct MYNODE *pPrev;
+	bool toBeInserted;
+	bool toBeUpdated;
+	bool toBeDeleted;
+	unsigned int fileOffset;
 	void *pData;
 	struct MYNODE *pNext;
 } MYNODE;

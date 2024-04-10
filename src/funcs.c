@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 #include "init.h"
 
 MYNODE *searchByName(const char *searchName)
@@ -29,24 +30,33 @@ void printAllNodes()
 {
         MYNODE *pCurrent = &g_Head;
         printf("Printing all nodes including dummy nodes..\n");
-        printf("[[pPrev]][pCurrent]\tname\tage\tphone\t\t[[pNext]]\n");
-        printf("=========================================================================\n");
+        printf("fileoffset\tIUD\tname\tage\tphone\t\tpPrev\t\tpCurrent\tpNext\n");
+        printf("==========================================================================================================\n");
         while(pCurrent != NULL)
         {
-        printf("[[%p]][%p]\t%s\t%d\t%s\t[[%p]]\n", 
-		pCurrent->pPrev, 
-		pCurrent, 
+        printf("%d\t\t%d%d%d\t%s\t%d\t%s\t%p\t%p\t%p\n", 
+		pCurrent->fileOffset,
+		pCurrent->toBeInserted,
+		pCurrent->toBeUpdated,
+		pCurrent->toBeDeleted,
 		((USERDATA*)pCurrent->pData)->name, 
 		((USERDATA*)pCurrent->pData)->age, 
 		((USERDATA*)pCurrent->pData)->phone, 
+		pCurrent->pPrev, 
+		pCurrent, 
 		pCurrent->pNext);
         pCurrent = pCurrent->pNext;
         }
         printf("\n");
 }
 
-void addNewNode(const char *newName, int newAge, const char *newPhone)
+void loadNode(const char *newName, int newAge, const char *newPhone, unsigned int skipOffset)
 {
+	if (newAge < 0)
+	{
+		printf("Invalid value of age. Please input proper value.\n");
+		return;
+	}
         USERDATA *newNode = malloc(sizeof(USERDATA));
         memset(newNode, 0, sizeof(USERDATA));
         strcpy(newNode->name, newName);
@@ -63,11 +73,43 @@ void addNewNode(const char *newName, int newAge, const char *newPhone)
         g_Tail.pPrev = newMyNode;
         newMyNode->pNext = &g_Tail;
 
-        printf("Added data : [%p] %s, %d, %s\n", newMyNode, 
-						 newNode->name,
-						 newNode->age,
-						 newNode->phone
-						 );
+	newMyNode->toBeInserted = false;
+	newMyNode->toBeUpdated = false;
+	newMyNode->toBeDeleted = false;
+
+	newMyNode->fileOffset = newMyNode->pPrev->fileOffset + skipOffset + 1;
+
+}
+
+void insertNode(const char *newName, int newAge, const char *newPhone)
+{
+	if (newAge < 0)
+	{
+		printf("Invalid value of age. Please input proper value.\n");
+		return;
+	}
+        USERDATA *newNode = malloc(sizeof(USERDATA));
+        memset(newNode, 0, sizeof(USERDATA));
+        strcpy(newNode->name, newName);
+        newNode->age = newAge;
+        strcpy(newNode->phone, newPhone);
+	
+	MYNODE *newMyNode = malloc(sizeof(MYNODE));
+
+	newMyNode->pData = newNode;
+
+        g_Tail.pPrev->pNext = newMyNode;
+        newMyNode->pPrev = g_Tail.pPrev;
+
+        g_Tail.pPrev = newMyNode;
+        newMyNode->pNext = &g_Tail;
+
+	newMyNode->toBeInserted = true;
+	newMyNode->toBeUpdated = false;
+	newMyNode->toBeDeleted = false;
+
+	newMyNode->fileOffset = newMyNode->pPrev->fileOffset + 1;
+
 }
 
 void updateNode(MYNODE *targetNode, const char *updatedName, int updatedAge, const char *updatedPhone)
@@ -75,10 +117,15 @@ void updateNode(MYNODE *targetNode, const char *updatedName, int updatedAge, con
 	strcpy(((USERDATA*)targetNode->pData)->name, updatedName);
 	((USERDATA*)targetNode->pData)->age = updatedAge;
 	strcpy(((USERDATA*)targetNode->pData)->phone, updatedPhone);
+	
+	if (targetNode->toBeInserted == false)
+	{
+		targetNode->toBeUpdated = true;
+	}
 }
 
 
-void removeAllNodes()
+void removeEverything()
 {
         MYNODE *targetNode = NULL;
         printf("=== Removing all nodes and indexes..===\n");
@@ -97,21 +144,18 @@ void removeAllNodes()
 
 }
 
-int removeNode(const char *searchName)
+int deleteNode(const char *searchName)
 {
         MYNODE *targetNode = searchByName(searchName);
         if ( targetNode == NULL )
         {
-                printf("There is no data to remove. - name : %s\n", searchName);
+                printf("There is no data to delete. - name : %s\n", searchName);
 		return 1;
         }
         else
         {
-                printf("Removing data - name : %s\n", ((USERDATA*)targetNode->pData)->name);
-                targetNode->pPrev->pNext = targetNode->pNext;
-                targetNode->pNext->pPrev = targetNode->pPrev;
-		free(targetNode->pData);
-                free(targetNode);
+                printf("Deleting data - name : %s\n", ((USERDATA*)targetNode->pData)->name);
+		targetNode->toBeDeleted = true;
 		return 0;
         }
 }
@@ -195,12 +239,24 @@ int getNodeCount()
 
 	while(pCurrent != &g_Tail)
 	{
-		cnt++;
+		if (pCurrent->toBeDeleted == false) cnt++;
 		pCurrent = pCurrent->pNext;
 	}
 	return cnt;
 }
 
+int getAllCount()
+{
+	MYNODE *pCurrent = g_Head.pNext;
+	int cnt = 0;
+
+	while(pCurrent != &g_Tail)
+	{
+		cnt++;
+		pCurrent = pCurrent->pNext;
+	}
+	return cnt;
+}
 MYNODE **createAgeIndex()
 {
 	MYNODE **ageIndex = NULL;
@@ -212,6 +268,10 @@ MYNODE **createAgeIndex()
 	//Input address of node into ageIndex
 	for (int i = 0; i < cnt; i++)
 	{
+		while(pCurrent->toBeDeleted == true)
+		{
+			pCurrent = pCurrent->pNext;
+		}
 		ageIndex[i] = pCurrent;
 		pCurrent = pCurrent->pNext;
 	}
@@ -243,6 +303,10 @@ MYNODE **createNameIndex()
 	//Input address of node into nameIndex
 	for (int i = 0; i < cnt; i++)
 	{
+		while(pCurrent->toBeDeleted == true)
+		{
+			pCurrent = pCurrent->pNext;
+		}
 		nameIndex[i] = pCurrent;
 		pCurrent = pCurrent->pNext;
 	}
@@ -355,16 +419,12 @@ void saveToFile(void)
 	MYNODE *pCurrent = g_Head.pNext;
 	FILE *fp = fopen("savedata.dat", "wb");
 	
-	int dataCount = getNodeCount();
-
 	if (fp == NULL)
 	{
 		printf("Cannot open file savedata.dat to write data.\n");
 		return;
 	}
 
-	fwrite(&dataCount, sizeof(int), 1, fp);
-	
 	while (pCurrent != &g_Tail)
 	{
 		fwrite(((USERDATA*)pCurrent->pData), sizeof(USERDATA), 1, fp);
@@ -381,26 +441,26 @@ void loadFromFile(void)
 	MYNODE *pCurrent = g_Head.pNext;
 	FILE *fp = fopen("savedata.dat", "rb");
 	USERDATA loadedData;
-
-	int dataCount = 0;
-	
+	unsigned int skipOffset = 0;
 
 	if (fp == NULL)
 	{
-		printf("Cannot open file savedata.dat\n");
+		printf("Cannot load savedata.dat - not found\n");
 		return;
 	}
 
-	fread(&dataCount, sizeof(int), 1, fp);
-
-	printf("Count of data from savedata.dat : %d\n", dataCount);
-
-	for(int i = 0; i < dataCount; i++)
+	while((fread(&loadedData, sizeof(USERDATA), 1, fp) == 1) && (((USERDATA*)pCurrent->pData)->age == -1))
 	{
-		fread(&loadedData, sizeof(USERDATA), 1, fp);
-		addNewNode(loadedData.name, loadedData.age, loadedData.phone);
+		if ( loadedData.age == 0 )
+		{
+			skipOffset++;
+		}
+		else
+		{
+			loadNode(loadedData.name, loadedData.age, loadedData.phone, skipOffset);
+			skipOffset = 0;
+		}
 	}
-
 	rebuildIndexes();
 
 	fclose(fp);
@@ -433,4 +493,62 @@ void checkSave(void)
                 }
         }
 
+}
+
+void commitInsert(MYNODE *pCurrent)
+{
+	//delete되고overwritable한 공간을 활용하는 방법은 나중에 고민해보자
+	FILE *fp = fopen("savedata.dat", "rb+");
+	fseek(fp, 0, SEEK_END);
+	fwrite(((USERDATA*)pCurrent->pData), sizeof(USERDATA), 1, fp);
+	fclose(fp);
+	pCurrent->toBeInserted = false;
+	printf("commitInsert\n");
+}
+
+void commitUpdate(MYNODE *pCurrent)
+{
+	FILE *fp = fopen("savedata.dat", "rb+");
+	fseek(fp, sizeof(USERDATA) * pCurrent->fileOffset, SEEK_SET);
+	fwrite((USERDATA*)pCurrent->pData, sizeof(USERDATA), 1, fp);
+	pCurrent->toBeUpdated = false;
+	fclose(fp);
+	printf("commitUpdate\n");
+}
+
+void commitDelete(MYNODE *pCurrent)
+{
+	USERDATA nullData = {0};
+	
+	FILE *fp = fopen("savedata.dat", "rb+");
+	fseek(fp, sizeof(USERDATA) * pCurrent->fileOffset, SEEK_SET);
+	fwrite(&nullData, sizeof(USERDATA), 1, fp);
+	pCurrent->pPrev->pNext = pCurrent->pNext;
+	pCurrent->pNext->pPrev = pCurrent->pPrev;
+	free(pCurrent->pData);
+	free(pCurrent);
+	fclose(fp);
+	printf("commitDelete\n");
+}
+
+void commit(void)
+{
+	MYNODE *pCurrent = g_Head.pNext;
+	while(pCurrent != &g_Tail)
+	{
+		if (pCurrent->toBeInserted == true)
+		{
+			commitInsert(pCurrent);
+		}
+		else if (pCurrent->toBeUpdated == true)
+		{
+			commitUpdate(pCurrent);
+		}
+		else if (pCurrent->toBeDeleted == true)
+		{
+			commitDelete(pCurrent);
+		}
+		pCurrent = pCurrent->pNext;
+	}
+	
 }

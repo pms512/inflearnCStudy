@@ -26,4 +26,7 @@ void initData()
 
         g_Head.pNext = &g_Tail;
         g_Tail.pPrev = &g_Head;
+
+	g_Head.fileOffset = -1;
+	g_Tail.fileOffset = -1;
 }

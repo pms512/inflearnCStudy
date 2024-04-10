@@ -19,7 +19,7 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
 
 $(TARGET): $(OBJECT)
 	$(CC) -o $@ main.c $^ $(INC)
-	./result
+	$(TARGET)
 
 clean:
 	rm -rf $(BUILD_DIR)/*.o $(TARGET)

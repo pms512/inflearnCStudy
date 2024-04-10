@@ -17,9 +17,9 @@ void addEvent(void)
 	printf("Input new phone : ");
 	scanf("%s", addPhone);
 
-	addNewNode(addName, addAge, addPhone);
+	insertNode(addName, addAge, addPhone);
 
-	checkSave();
+//	checkSave();
 
 	rebuildIndexes();	
 }
@@ -50,7 +50,7 @@ void updateEvent(void)
 
 	updateNode(updateTarget, updatedName, updatedAge, updatedPhone);
 	
-	checkSave();
+//	checkSave();
 
 	rebuildIndexes();	
 }
@@ -88,13 +88,13 @@ void deleteEvent(void)
 	char targetName[20];
 	int deleteResult;
 
-	printf("Input name to remove : ");
+	printf("Input name to delete : ");
 	scanf("%s",targetName);
-	deleteResult = removeNode(targetName);
+	deleteResult = deleteNode(targetName);
 	
 	if (deleteResult == 1) return;
 	
-	checkSave();
+//	checkSave();
 
 	rebuildIndexes();
 }
@@ -107,6 +107,7 @@ void exitEvent(void)
 void printAllEvent(void)
 {
 	printAllNodes();
+	countAllEvent();
 }
 
 void countEvent(void)
@@ -114,14 +115,21 @@ void countEvent(void)
 	printf("COUNT : %d\n", getNodeCount());
 }
 
+void countAllEvent(void)
+{
+	printf("COUNT(ALL) : %d\n", getAllCount());
+}
+
 void printByAgeIndexEvent(void)
 {
 	printByIndex(ageIndex);
+	countEvent();
 }
 
 void printByNameIndexEvent(void)
 {
 	printByIndex(nameIndex);
+	countEvent();
 }
 
 void loadFromFileEvent(void)
@@ -136,6 +144,12 @@ void saveToFileEvent(void)
 	saveToFile();
 }
 
+void commitEvent(void)
+{
+	printf("You called commitEvent.\n");
+	commit();
+}
+
 void eventLoop(void)
 {
 	int inputCommand;
@@ -147,12 +161,12 @@ void eventLoop(void)
 		printf("[1]Add\t\t\t[2]Update\t\t[3]Select        |\n");
 	        printf("[4]PrintAllNodes\t[5]Delete\t\t[6]Count         |\n");
 	        printf("[7]PrintByAgeIndex\t[8]PrintByNameIndex\t[9]LoadFromFile  |\n");
-	        printf("[10]SaveToFile\t\t[11]Exit                                 |\n");
+	        printf("[10]SaveToFile\t\t[11]Commit\t\t[12]Exit         |\n");
 		printf("==================================================================\n");
 		printf("input>");
 		scanf("%d", &inputCommand);
 
-		if ( (inputCommand < 1) || (inputCommand > 11) )
+		if ( (inputCommand < 1) || (inputCommand > 12) )
 		{
 			printf("Invalid input. Please input proper value (1 ~ 11) \n");
 			return;
@@ -201,6 +215,10 @@ void eventLoop(void)
 
 				case SAVETOFILE:
 					saveToFileEvent();
+					break;
+
+				case COMMIT:
+					commitEvent();
 					break;
 
 				case EXIT:
