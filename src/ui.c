@@ -106,7 +106,7 @@ void exitEvent(void)
 
 void printAllEvent(void)
 {
-	printAllNodes();
+	printAllInfo();
 	countAllEvent();
 }
 
@@ -140,8 +140,24 @@ void loadFromFileEvent(void)
 
 void saveToFileEvent(void)
 {
-	printf("You called saveToFileEvent.\n");
+	printf("You called seekNodeEvent.\n");
 	saveToFile();
+}
+
+void seekNodeEvent(void)
+{
+	int nodeIndex;
+	MYNODE *pResult;
+	printf("Input number of node : ");
+	scanf("%d", &nodeIndex);
+	pResult = seekNode(nodeIndex);
+
+	printf("Name : %s\nAge : %d\nPhone : %s\n",
+			((USERDATA*)pResult->pData)->name,
+			((USERDATA*)pResult->pData)->age,
+			((USERDATA*)pResult->pData)->phone
+	      );
+
 }
 
 void commitEvent(void)
@@ -159,9 +175,9 @@ void eventLoop(void)
 		printf("\n");
 		printf("===================== [INPUT COMMAND NUMBER] =====================\n");
 		printf("[1]Add\t\t\t[2]Update\t\t[3]Select        |\n");
-	        printf("[4]PrintAllNodes\t[5]Delete\t\t[6]Count         |\n");
+	        printf("[4]PrintAllInfo\t\t[5]Delete\t\t[6]Count         |\n");
 	        printf("[7]PrintByAgeIndex\t[8]PrintByNameIndex\t[9]LoadFromFile  |\n");
-	        printf("[10]SaveToFile\t\t[11]Commit\t\t[12]Exit         |\n");
+	        printf("[10]SeekNode\t\t[11]Commit\t\t[12]Exit         |\n");
 		printf("==================================================================\n");
 		printf("input>");
 		scanf("%d", &inputCommand);
@@ -213,8 +229,8 @@ void eventLoop(void)
 					loadFromFileEvent();
 					break;
 
-				case SAVETOFILE:
-					saveToFileEvent();
+				case SEEKNODE:
+					seekNodeEvent();
 					break;
 
 				case COMMIT:

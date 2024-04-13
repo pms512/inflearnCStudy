@@ -7,6 +7,7 @@ MYNODE g_Head = { 0 };
 MYNODE g_Tail = { 0 };
 MYNODE **ageIndex = NULL;
 MYNODE **nameIndex = NULL;
+HEADER g_Header = {-1, -1, -1, -1};
 
 void initData()
 {       

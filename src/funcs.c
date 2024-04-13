@@ -26,10 +26,15 @@ MYNODE *searchByName(const char *searchName)
 }
 
 
-void printAllNodes()
+void printAllInfo()
 {
         MYNODE *pCurrent = &g_Head;
-        printf("Printing all nodes including dummy nodes..\n");
+	printf("\n==== [HEADER INFO] ====\n");
+	printf("firstDeleted : %d\n", g_Header.firstDeleted);
+	printf("nextFirstDeleted : %d\n", g_Header.nextFirstDeleted);
+	printf("lastDeleted : %d\n", g_Header.lastDeleted);
+	printf("prevLastDeleted : %d\n", g_Header.prevLastDeleted);
+	printf("\n");
         printf("fileoffset\tIUD\tname\tage\tphone\t\tpPrev\t\tpCurrent\tpNext\n");
         printf("==========================================================================================================\n");
         while(pCurrent != NULL)
@@ -93,6 +98,8 @@ void insertNode(const char *newName, int newAge, const char *newPhone)
         strcpy(newNode->name, newName);
         newNode->age = newAge;
         strcpy(newNode->phone, newPhone);
+	newNode->dPrev = -1;
+	newNode->dNext = -1;
 	
 	MYNODE *newMyNode = malloc(sizeof(MYNODE));
 
@@ -107,8 +114,15 @@ void insertNode(const char *newName, int newAge, const char *newPhone)
 	newMyNode->toBeInserted = true;
 	newMyNode->toBeUpdated = false;
 	newMyNode->toBeDeleted = false;
-
-	newMyNode->fileOffset = newMyNode->pPrev->fileOffset + 1;
+	
+	if(g_Header.firstDeleted != -1)
+	{
+		newMyNode->fileOffset = g_Header.firstDeleted;
+	}
+	else
+	{
+		newMyNode->fileOffset = newMyNode->pPrev->fileOffset + 1;
+	}
 
 }
 
@@ -156,6 +170,23 @@ int deleteNode(const char *searchName)
         {
                 printf("Deleting data - name : %s\n", ((USERDATA*)targetNode->pData)->name);
 		targetNode->toBeDeleted = true;
+		//delete된 data 위치들에 대한 관리
+		/*
+		if ((g_Header.firstDeleted == -1) || (g_Header.firstDeleted > targetNode->fileOffset))
+		{
+			g_Header.nextFirstDeleted = g_Header.firstDeleted;
+			g_Header.firstDeleted = targetNode->fileOffset;
+		}
+
+		if ((g_Header.lastDeleted == -1) || (g_Header.lastDeleted < targetNode->fileOffset))
+		{
+			g_Header.prevLastDeleted = g_Header.lastDeleted;
+			g_Header.lastDeleted = targetNode->fileOffset;
+		}
+		*/
+
+		g_Header.firstDeleted = targetNode->fileOffset;
+
 		return 0;
         }
 }
@@ -449,6 +480,8 @@ void loadFromFile(void)
 		return;
 	}
 
+	fread(&g_Header, sizeof(HEADER), 1, fp);
+
 	while((fread(&loadedData, sizeof(USERDATA), 1, fp) == 1) && (((USERDATA*)pCurrent->pData)->age == -1))
 	{
 		if ( loadedData.age == 0 )
@@ -499,8 +532,17 @@ void commitInsert(MYNODE *pCurrent)
 {
 	//delete되고overwritable한 공간을 활용하는 방법은 나중에 고민해보자
 	FILE *fp = fopen("savedata.dat", "rb+");
-	fseek(fp, 0, SEEK_END);
-	fwrite(((USERDATA*)pCurrent->pData), sizeof(USERDATA), 1, fp);
+	fseek(fp, sizeof(HEADER), SEEK_SET);
+	if(g_Header.firstDeleted != -1)
+	{
+		fseek(fp, sizeof(USERDATA) * g_Header.firstDeleted, SEEK_CUR);
+		fwrite(((USERDATA*)pCurrent->pData), sizeof(USERDATA), 1, fp);
+	}
+	else
+	{
+		fseek(fp, 0, SEEK_END);
+		fwrite(((USERDATA*)pCurrent->pData), sizeof(USERDATA), 1, fp);
+	}
 	fclose(fp);
 	pCurrent->toBeInserted = false;
 	printf("commitInsert\n");
@@ -521,7 +563,8 @@ void commitDelete(MYNODE *pCurrent)
 	USERDATA nullData = {0};
 	
 	FILE *fp = fopen("savedata.dat", "rb+");
-	fseek(fp, sizeof(USERDATA) * pCurrent->fileOffset, SEEK_SET);
+	fseek(fp, sizeof(HEADER), SEEK_SET);
+	fseek(fp, sizeof(USERDATA) * pCurrent->fileOffset, SEEK_CUR);
 	fwrite(&nullData, sizeof(USERDATA), 1, fp);
 	pCurrent->pPrev->pNext = pCurrent->pNext;
 	pCurrent->pNext->pPrev = pCurrent->pPrev;
@@ -531,9 +574,20 @@ void commitDelete(MYNODE *pCurrent)
 	printf("commitDelete\n");
 }
 
+void commitHeader(void)
+{
+	FILE *fp = fopen("savedata.dat", "rb+");
+	fseek(fp, 0, SEEK_SET);
+	fwrite(&g_Header, sizeof(HEADER), 1, fp);
+	fclose(fp);
+	printf("commitHeader\n");
+}
+
 void commit(void)
 {
 	MYNODE *pCurrent = g_Head.pNext;
+
+	commitHeader();
 	while(pCurrent != &g_Tail)
 	{
 		if (pCurrent->toBeInserted == true)
@@ -551,4 +605,14 @@ void commit(void)
 		pCurrent = pCurrent->pNext;
 	}
 	
+}
+
+MYNODE *seekNode(int fileOffset)
+{
+	MYNODE *pResult = g_Head.pNext;
+	for(int i = 0; i < fileOffset; i++)
+	{
+		pResult = pResult->pNext;
+	}
+	return pResult;
 }

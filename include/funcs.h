@@ -6,7 +6,7 @@
 
 int deleteNode(const char *searchName);
 MYNODE *searchByName(const char *searchName);
-void printAllNodes();
+void printAllInfo();
 void loadNode(const char *newName, int newAge, const char *newPhone, unsigned int skipOffset);
 void insertNode(const char *newName, int newAge, const char *newPhone);
 void removeEverything();
@@ -27,3 +27,6 @@ void commit(void);
 void commitInsert(MYNODE *pCurrent);
 void commitUpdate(void);
 void commitDelete(void);
+void saveToFile(void);
+MYNODE *seekNode(int fileOffset);
+void commitHeader(void);

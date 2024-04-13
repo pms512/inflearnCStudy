@@ -26,11 +26,11 @@ void test_removeHeadNode()
 	
         printf("[[TEST 1 : Remove head node]]\n");
         insertNode("aaaa", 10, "010-1111-1111");
-        printAllNodes();
+        printAllInfo();
         deleteNode("aaaa");
         insertNode("Newaaaa", 10, "010-1111-1111");
         searchByName("Newaaaabb");
-        printAllNodes();
+        printAllInfo();
         removeEverything();
 }
 
@@ -39,10 +39,10 @@ void test_removeBodyNode()
 	
         printf("[[TEST 2 : Remove body node]]\n");
         addInitData();
-        printAllNodes();
+        printAllInfo();
         deleteNode("bbbb");
         insertNode("Newbbbb", 20, "010-2222-2222");
-        printAllNodes();
+        printAllInfo();
         removeEverything();
 }
 
@@ -51,10 +51,10 @@ void test_removeTailNode()
 	
         printf("[[TEST 3 : Remove tail node]]\n");
         addInitData();
-        printAllNodes();
+        printAllInfo();
         deleteNode("cccc");
         insertNode("Newcccc", 30, "010-3333-3333");
-        printAllNodes();
+        printAllInfo();
         removeEverything();
 }
 

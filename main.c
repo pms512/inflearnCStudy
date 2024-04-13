@@ -9,6 +9,7 @@
 int main()
 {
 	initData();
+//	addInitData();
 	eventLoop();
 	removeEverything();
 
